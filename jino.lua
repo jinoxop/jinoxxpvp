@@ -1,25 +1,4 @@
---[[
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║                                                                               ║
-║     ██╗ ██╗███╗   ██╗ ██████╗ ██╗  ██╗██╗  ██╗     ██████╗ ███████╗██╗       ║
-║     ██║ ██║████╗  ██║██╔═══██╗╚██╗██╔╝██║  ██║     ██╔══██╗██╔════╝██║       ║
-║     ██║ ██║██╔██╗ ██║██║   ██║ ╚███╔╝ ███████║     ██║  ██║█████╗  ██║       ║
-║     ██║ ██║██║╚██╗██║██║   ██║ ██╔██╗ ██╔══██║     ██║  ██║██╔══╝  ██║       ║
-║     ██║ ██║██║ ╚████║╚██████╔╝██╔╝ ██╗██║  ██║     ██████╔╝███████╗██║       ║
-║     ╚═╝ ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝     ╚═════╝ ╚══════╝╚═╝       ║
-║                                                                               ║
-║              JINOXX DEV - BLOCK SPIN HUB [PASSWORD: JINOXX DEV]              ║
-║                           VERSION: 9.0 - HORIZONTAL                          ║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
---]]
-
--- ==============================================================================
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║                          PASSWORD SYSTEM                                  ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
--- ==============================================================================
-
+-- JINOXX DEV - BLOCK SPIN HUB (PASSWORD: JINOXX DEV)
 local player = game.Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -28,756 +7,532 @@ local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local Lighting = game:GetService("Lighting")
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local VirtualUser = game:GetService("VirtualUser")
 
-local PASSWORD = "JINOXX DEV"  -- كلمة المرور الصحيحة (حساسة للحروف الكبيرة)
+--==================================================--
+--                  PASSWORD CHECK                  --
+--==================================================--
+local PASSWORD = "JINOXX DEV"
 
--- نافذة إدخال الباسورد
-local passwordGui = Instance.new("ScreenGui")
-passwordGui.Name = "JinoXX_Password"
-passwordGui.Parent = player:WaitForChild("PlayerGui")
+local passGui = Instance.new("ScreenGui")
+passGui.Name = "JinoXX_Password"
+passGui.Parent = player.PlayerGui
 
--- الخلفية
 local bg = Instance.new("Frame")
 bg.Size = UDim2.new(1, 0, 1, 0)
-bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-bg.BackgroundTransparency = 0.75
-bg.Parent = passwordGui
+bg.BackgroundColor3 = Color3.new(0, 0, 0)
+bg.BackgroundTransparency = 0.7
+bg.Parent = passGui
 
--- النافذة الرئيسية
 local passFrame = Instance.new("Frame")
-passFrame.Size = UDim2.new(0, 380, 0, 280)
-passFrame.Position = UDim2.new(0.5, -190, 0.5, -140)
+passFrame.Size = UDim2.new(0, 380, 0, 260)
+passFrame.Position = UDim2.new(0.5, -190, 0.5, -130)
 passFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
-passFrame.BackgroundTransparency = 0.05
 passFrame.BorderSizePixel = 0
-passFrame.ClipsDescendants = true
-passFrame.Parent = passwordGui
+passFrame.Parent = passGui
 
-local passCorner = Instance.new("UICorner")
-passCorner.CornerRadius = UDim.new(0, 20)
-passCorner.Parent = passFrame
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 20)
+corner.Parent = passFrame
 
--- توهج بنفسجي
-local passGlow = Instance.new("Frame")
-passGlow.Size = UDim2.new(1, 12, 1, 12)
-passGlow.Position = UDim2.new(0, -6, 0, -6)
-passGlow.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-passGlow.BackgroundTransparency = 0.85
-passGlow.BorderSizePixel = 0
-passGlow.ZIndex = 0
-passGlow.Parent = passFrame
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 70)
+title.Position = UDim2.new(0, 0, 0, 20)
+title.BackgroundTransparency = 1
+title.Text = "JINoxX"
+title.TextColor3 = Color3.fromRGB(128, 0, 255)
+title.TextSize = 42
+title.Font = Enum.Font.GothamBold
+title.Parent = passFrame
 
-local passGlowCorner = Instance.new("UICorner")
-passGlowCorner.CornerRadius = UDim.new(0, 26)
-passGlowCorner.Parent = passGlow
+local sub = Instance.new("TextLabel")
+sub.Size = UDim2.new(1, 0, 0, 25)
+sub.Position = UDim2.new(0, 0, 0, 85)
+sub.BackgroundTransparency = 1
+sub.Text = "ENTER PASSWORD"
+sub.TextColor3 = Color3.fromRGB(200,200,200)
+sub.TextSize = 12
+sub.Parent = passFrame
 
--- الشعار
-local logo = Instance.new("TextLabel")
-logo.Size = UDim2.new(1, 0, 0, 70)
-logo.Position = UDim2.new(0, 0, 0, 25)
-logo.BackgroundTransparency = 1
-logo.Text = "JINoxX"
-logo.TextColor3 = Color3.fromRGB(128, 0, 255)
-logo.TextSize = 42
-logo.Font = Enum.Font.GothamBold
-logo.Parent = passFrame
-
-local subLogo = Instance.new("TextLabel")
-subLogo.Size = UDim2.new(1, 0, 0, 25)
-subLogo.Position = UDim2.new(0, 0, 0, 85)
-subLogo.BackgroundTransparency = 1
-subLogo.Text = "ENTER PASSWORD"
-subLogo.TextColor3 = Color3.fromRGB(200, 200, 200)
-subLogo.TextSize = 12
-subLogo.Font = Enum.Font.Gotham
-subLogo.Parent = passFrame
-
--- حقل إدخال الباسورد
 local passBox = Instance.new("TextBox")
 passBox.Size = UDim2.new(0.8, 0, 0, 45)
 passBox.Position = UDim2.new(0.1, 0, 0, 130)
-passBox.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+passBox.BackgroundColor3 = Color3.fromRGB(20,20,30)
 passBox.BorderSizePixel = 0
-passBox.PlaceholderText = "Enter password..."
+passBox.PlaceholderText = "password"
 passBox.Text = ""
-passBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-passBox.TextSize = 14
+passBox.TextColor3 = Color3.new(1,1,1)
 passBox.Font = Enum.Font.Gotham
 passBox.Parent = passFrame
 
-local passCornerBox = Instance.new("UICorner")
-passCornerBox.CornerRadius = UDim.new(0, 12)
-passCornerBox.Parent = passBox
+local passCorner = Instance.new("UICorner")
+passCorner.CornerRadius = UDim.new(0, 12)
+passCorner.Parent = passBox
 
--- زر التحقق
-local verifyBtn = Instance.new("TextButton")
-verifyBtn.Size = UDim2.new(0.5, 0, 0, 45)
-verifyBtn.Position = UDim2.new(0.25, 0, 0, 195)
-verifyBtn.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-verifyBtn.Text = "VERIFY"
-verifyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-verifyBtn.TextSize = 14
-verifyBtn.Font = Enum.Font.GothamBold
-verifyBtn.BorderSizePixel = 0
-verifyBtn.Parent = passFrame
+local verify = Instance.new("TextButton")
+verify.Size = UDim2.new(0.5, 0, 0, 45)
+verify.Position = UDim2.new(0.25, 0, 0, 195)
+verify.BackgroundColor3 = Color3.fromRGB(128,0,255)
+verify.Text = "VERIFY"
+verify.TextColor3 = Color3.new(1,1,1)
+verify.TextSize = 14
+verify.Font = Enum.Font.GothamBold
+verify.BorderSizePixel = 0
+verify.Parent = passFrame
 
 local verifyCorner = Instance.new("UICorner")
 verifyCorner.CornerRadius = UDim.new(0, 25)
-verifyCorner.Parent = verifyBtn
+verifyCorner.Parent = verify
 
--- رسالة الخطأ
-local errorLabel = Instance.new("TextLabel")
-errorLabel.Size = UDim2.new(0.8, 0, 0, 30)
-errorLabel.Position = UDim2.new(0.1, 0, 0, 245)
-errorLabel.BackgroundTransparency = 1
-errorLabel.Text = ""
-errorLabel.TextColor3 = Color3.fromRGB(255, 50, 100)
-errorLabel.TextSize = 11
-errorLabel.Font = Enum.Font.Gotham
-errorLabel.Visible = false
-errorLabel.Parent = passFrame
+local errLabel = Instance.new("TextLabel")
+errLabel.Size = UDim2.new(0.8, 0, 0, 30)
+errLabel.Position = UDim2.new(0.1, 0, 0, 245)
+errLabel.BackgroundTransparency = 1
+errLabel.Text = ""
+errLabel.TextColor3 = Color3.fromRGB(255,50,100)
+errLabel.TextSize = 11
+errLabel.Visible = false
+errLabel.Parent = passFrame
 
--- تأثير hover
-verifyBtn.MouseEnter:Connect(function()
-    TweenService:Create(verifyBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(160, 50, 255)}):Play()
-end)
-verifyBtn.MouseLeave:Connect(function()
-    TweenService:Create(verifyBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(128, 0, 255)}):Play()
-end)
-
--- دالة التحقق
-local function checkPassword()
-    local input = passBox.Text
-    if input == PASSWORD then
-        passwordGui:Destroy()
-        loadMainHub()  -- تشغيل الهكر
+local function onVerify()
+    if passBox.Text == PASSWORD then
+        passGui:Destroy()
+        CreateMainHub()
     else
-        errorLabel.Text = "❌ Wrong password! Try again."
-        errorLabel.Visible = true
+        errLabel.Text = "❌ Wrong password!"
+        errLabel.Visible = true
+        task.wait(1.5)
+        errLabel.Visible = false
         passBox.Text = ""
-        task.delay(2, function()
-            errorLabel.Visible = false
-        end)
     end
 end
+verify.MouseButton1Click:Connect(onVerify)
+passBox.FocusLost:Connect(function(ep) if ep then onVerify() end end)
 
-verifyBtn.MouseButton1Click:Connect(checkPassword)
-passBox.FocusLost:Connect(function(enterPressed)
-    if enterPressed then checkPassword() end
-end)
-
--- ==============================================================================
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║                          MAIN HUB (HORIZONTAL)                            ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
--- ==============================================================================
-
-local function loadMainHub()
-    print("JINOXX DEV - ACCESS GRANTED! Loading Horizontal Hub...")
+--==================================================--
+--                  MAIN HUB (HORIZONTAL)           --
+--==================================================--
+function CreateMainHub()
+    -- المتغيرات
+    local aimbot = false
+    local esp = false
+    local autoATM = false
+    local fly = false
+    local noclip = false
+    local infJump = false
+    local fullbright = false
+    local aimConn = nil
+    local farmConn = nil
+    local flyConn = nil
+    local noclipConn = nil
+    local jumpConn = nil
+    local bodyVel = nil
+    local espObjs = {}
+    local origLight = {Brightness=Lighting.Brightness, Ambient=Lighting.Ambient, Outdoor=Lighting.OutdoorAmbient}
     
-    -- إشعار ترحيبي
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "JINoxX",
-        Text = "Password Correct! Loading Hub...",
-        Duration = 2
-    })
-    
-    -- ==========================================================================
-    -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ╍                          VARIABLES                                     ║
-    -- ╚═══════════════════════════════════════════════════════════════════════╝
-    -- ==========================================================================
-    
-    local aimbotEnabled = false
-    local silentAimEnabled = false
-    local wallbangEnabled = false
-    local espEnabled = false
-    local autoFarmATM = false
-    local autoFish = false
-    local autoCollectLoot = false
-    local flyEnabled = false
-    local noclipEnabled = false
-    local infJumpEnabled = false
-    local fullbrightEnabled = false
-    local chamsEnabled = false
-    local aimPart = "Head"
-    local aimRange = 150
-    local farmSpeed = 10
-    
-    local aimbotConnection = nil
-    local farmConnection = nil
-    local fishConnection = nil
-    local flyConnection = nil
-    local noclipConnection = nil
-    local jumpConnection = nil
-    local bodyVelocity = nil
-    local espObjects = {}
-    local chamsObjects = {}
-    
-    -- ==========================================================================
-    -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ╍                          HELPER FUNCTIONS                              ║
-    -- ╚═══════════════════════════════════════════════════════════════════════╝
-    -- ==========================================================================
-    
-    local function getClosestPlayer()
-        local closest = nil
-        local closestDist = aimRange
-        local character = player.Character
-        if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
-        local rootPart = character.HumanoidRootPart
-        
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 then
-                local targetRoot = plr.Character.HumanoidRootPart
-                local dist = (targetRoot.Position - rootPart.Position).Magnitude
-                if dist < closestDist then
-                    closestDist = dist
-                    closest = plr
-                end
+    local function getClosest()
+        local pl = player.Character
+        if not pl or not pl:FindFirstChild("HumanoidRootPart") then return end
+        local root = pl.HumanoidRootPart
+        local closest, dist = nil, 150
+        for _,v in pairs(Players:GetPlayers()) do
+            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character.Humanoid.Health > 0 then
+                local d = (v.Character.HumanoidRootPart.Position - root.Position).Magnitude
+                if d < dist then dist = d; closest = v end
             end
         end
         return closest
     end
     
-    -- ==========================================================================
-    -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ╍                              AIMBOT                                    ║
-    -- ╚═══════════════════════════════════════════════════════════════════════╝
-    -- ==========================================================================
-    
     local function startAimbot()
-        if aimbotConnection then aimbotConnection:Disconnect() end
-        aimbotConnection = RunService.RenderStepped:Connect(function()
-            if not aimbotEnabled then return end
-            local target = getClosestPlayer()
-            if target and target.Character and target.Character:FindFirstChild(aimPart) then
-                local targetPart = target.Character[aimPart]
-                if targetPart and Workspace.CurrentCamera then
-                    if wallbangEnabled then
-                        Workspace.CurrentCamera.CFrame = CFrame.new(Workspace.CurrentCamera.CFrame.Position, targetPart.Position)
-                    else
-                        local origin = Workspace.CurrentCamera.CFrame.Position
-                        local direction = (targetPart.Position - origin).unit
-                        local raycastParams = RaycastParams.new()
-                        raycastParams.FilterDescendantsInstances = {player.Character}
-                        raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-                        local rayResult = Workspace:Raycast(origin, direction * (origin - targetPart.Position).Magnitude, raycastParams)
-                        if not rayResult then
-                            Workspace.CurrentCamera.CFrame = CFrame.new(Workspace.CurrentCamera.CFrame.Position, targetPart.Position)
-                        end
-                    end
+        if aimConn then aimConn:Disconnect() end
+        aimConn = RunService.RenderStepped:Connect(function()
+            if not aimbot then return end
+            local target = getClosest()
+            if target and target.Character and target.Character:FindFirstChild("Head") then
+                local cam = Workspace.CurrentCamera
+                if cam then
+                    cam.CFrame = CFrame.new(cam.CFrame.Position, target.Character.Head.Position)
                 end
             end
         end)
     end
     
     local function stopAimbot()
-        if aimbotConnection then aimbotConnection:Disconnect(); aimbotConnection = nil end
+        if aimConn then aimConn:Disconnect(); aimConn = nil end
     end
     
-    -- ==========================================================================
-    -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ╍                          ESP (NAME UNDER PLAYER)                       ║
-    -- ╚═══════════════════════════════════════════════════════════════════════╝
-    -- ==========================================================================
-    
-    local function createESP(playerObj)
-        if not espEnabled then return end
-        if espObjects[playerObj] then
-            if espObjects[playerObj].Highlight then espObjects[playerObj].Highlight:Destroy() end
-            if espObjects[playerObj].Billboard then espObjects[playerObj].Billboard:Destroy() end
-        end
-        
-        local char = playerObj.Character
-        if not char then return end
-        
-        local highlight = Instance.new("Highlight")
-        highlight.FillColor = playerObj == player and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-        highlight.FillTransparency = 0.5
-        highlight.Adornee = char
-        highlight.Parent = char
-        
-        local billboard = Instance.new("BillboardGui")
-        billboard.Size = UDim2.new(0, 200, 0, 40)
-        billboard.StudsOffset = Vector3.new(0, -3, 0)
-        billboard.Adornee = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Head")
-        billboard.AlwaysOnTop = true
-        billboard.Parent = char
-        
-        local nameFrame = Instance.new("Frame")
-        nameFrame.Size = UDim2.new(1, 0, 1, 0)
-        nameFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        nameFrame.BackgroundTransparency = 0.4
-        nameFrame.BorderSizePixel = 0
-        nameFrame.Parent = billboard
-        
-        local nameCorner = Instance.new("UICorner")
-        nameCorner.CornerRadius = UDim.new(0, 8)
-        nameCorner.Parent = nameFrame
-        
-        local nameLabel = Instance.new("TextLabel")
-        nameLabel.Size = UDim2.new(1, 0, 1, 0)
-        nameLabel.BackgroundTransparency = 1
-        nameLabel.Text = playerObj.Name
-        nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        nameLabel.TextSize = 11
-        nameLabel.Font = Enum.Font.GothamSemibold
-        nameLabel.Parent = nameFrame
-        
-        espObjects[playerObj] = {Highlight = highlight, Billboard = billboard}
-    end
-    
+    -- ESP (name under player)
     local function updateESP()
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if espEnabled and plr ~= player then
-                createESP(plr)
-            elseif espObjects[plr] then
-                if espObjects[plr].Highlight then espObjects[plr].Highlight:Destroy() end
-                if espObjects[plr].Billboard then espObjects[plr].Billboard:Destroy() end
-                espObjects[plr] = nil
+        for _,plr in pairs(Players:GetPlayers()) do
+            if esp and plr ~= player and plr.Character then
+                if not espObjs[plr] then
+                    local char = plr.Character
+                    local hl = Instance.new("Highlight")
+                    hl.FillColor = Color3.fromRGB(255,0,0)
+                    hl.OutlineColor = Color3.new(1,1,1)
+                    hl.FillTransparency = 0.5
+                    hl.Adornee = char
+                    hl.Parent = char
+                    local bill = Instance.new("BillboardGui")
+                    bill.Size = UDim2.new(0,200,0,40)
+                    bill.StudsOffset = Vector3.new(0,-3,0)
+                    bill.Adornee = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Head")
+                    bill.AlwaysOnTop = true
+                    bill.Parent = char
+                    local frame = Instance.new("Frame")
+                    frame.Size = UDim2.new(1,0,1,0)
+                    frame.BackgroundColor3 = Color3.new(0,0,0)
+                    frame.BackgroundTransparency = 0.4
+                    frame.Parent = bill
+                    local lbl = Instance.new("TextLabel")
+                    lbl.Size = UDim2.new(1,0,1,0)
+                    lbl.BackgroundTransparency = 1
+                    lbl.Text = plr.Name
+                    lbl.TextColor3 = Color3.new(1,1,1)
+                    lbl.TextSize = 11
+                    lbl.Font = Enum.Font.GothamSemibold
+                    lbl.Parent = frame
+                    espObjs[plr] = {Highlight=hl, Billboard=bill}
+                end
+            elseif espObjs[plr] then
+                espObjs[plr].Highlight:Destroy()
+                espObjs[plr].Billboard:Destroy()
+                espObjs[plr] = nil
             end
         end
     end
     
-    -- ==========================================================================
-    -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ╍                              FARM                                      ║
-    -- ╚═══════════════════════════════════════════════════════════════════════╝
-    -- ==========================================================================
-    
-    local function startATMFarm()
-        if farmConnection then farmConnection:Disconnect() end
-        farmConnection = RunService.Heartbeat:Connect(function()
-            if not autoFarmATM then return end
-            local character = player.Character
-            if not character or not character:FindFirstChild("HumanoidRootPart") then return end
-            local rootPart = character.HumanoidRootPart
-            
-            for _, obj in ipairs(Workspace:GetDescendants()) do
-                if not autoFarmATM then break end
-                local objName = obj.Name:lower()
-                if obj:IsA("Model") and (objName:find("atm") or objName:find("cash") or objName:find("vault") or objName:find("bank")) then
-                    local targetPart = obj:FindFirstChild("PrimaryPart") or obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChild("Head")
-                    if targetPart then
-                        local dist = (targetPart.Position - rootPart.Position).Magnitude
+    -- Auto ATM Farm
+    local function startFarm()
+        if farmConn then farmConn:Disconnect() end
+        farmConn = RunService.Heartbeat:Connect(function()
+            if not autoATM then return end
+            local char = player.Character
+            if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+            local root = char.HumanoidRootPart
+            for _,obj in pairs(Workspace:GetDescendants()) do
+                if not autoATM then break end
+                if obj:IsA("Model") and (obj.Name:lower():find("atm") or obj.Name:lower():find("cash")) then
+                    local part = obj:FindFirstChild("PrimaryPart") or obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChild("Head")
+                    if part then
+                        local dist = (part.Position - root.Position).Magnitude
                         if dist < 10 then
                             VirtualInputManager:SendKeyEvent(true, "E", false, game)
                             task.wait(0.05)
                             VirtualInputManager:SendKeyEvent(false, "E", false, game)
-                            task.wait(1.5)
+                            task.wait(1)
                         elseif dist < 30 then
-                            local direction = (targetPart.Position - rootPart.Position).unit
-                            rootPart.CFrame = rootPart.CFrame + direction * (farmSpeed / 10)
+                            local dir = (part.Position - root.Position).unit
+                            root.CFrame = root.CFrame + dir * 8
                         end
                     end
                 end
             end
         end)
     end
-    
-    local function stopATMFarm()
-        if farmConnection then farmConnection:Disconnect(); farmConnection = nil end
+    local function stopFarm()
+        if farmConn then farmConn:Disconnect(); farmConn = nil end
     end
     
-    -- ==========================================================================
-    -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ╍                            MOVEMENT                                    ║
-    -- ╚═══════════════════════════════════════════════════════════════════════╝
-    -- ==========================================================================
-    
+    -- Fly
     local function enableFly()
-        if flyConnection then flyConnection:Disconnect() end
-        flyEnabled = true
-        local character = player.Character
-        if not character then return end
-        local rootPart = character:FindFirstChild("HumanoidRootPart")
-        if not rootPart then return end
-        
-        bodyVelocity = Instance.new("BodyVelocity")
-        bodyVelocity.MaxForce = Vector3.new(10000, 10000, 10000)
-        bodyVelocity.Parent = rootPart
-        
-        flyConnection = RunService.Heartbeat:Connect(function()
-            if not flyEnabled or not bodyVelocity or not player.Character then
-                if flyConnection then flyConnection:Disconnect() end
+        if flyConn then flyConn:Disconnect() end
+        fly = true
+        local char = player.Character
+        if not char then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if not root then return end
+        bodyVel = Instance.new("BodyVelocity")
+        bodyVel.MaxForce = Vector3.new(1e4,1e4,1e4)
+        bodyVel.Parent = root
+        flyConn = RunService.Heartbeat:Connect(function()
+            if not fly or not bodyVel or not player.Character then
+                if flyConn then flyConn:Disconnect() end
                 return
             end
-            local humanoid = player.Character.Humanoid
-            if humanoid then
-                local moveDir = humanoid.MoveDirection
-                local yVel = 0
-                if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-                    yVel = 50
-                elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
-                    yVel = -50
-                end
-                bodyVelocity.Velocity = Vector3.new(moveDir.X * 80, yVel, moveDir.Z * 80)
-            end
+            local move = player.Character.Humanoid.MoveDirection
+            local up = (UserInputService:IsKeyDown(Enum.KeyCode.Space) and 50) or (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) and -50) or 0
+            bodyVel.Velocity = Vector3.new(move.X*80, up, move.Z*80)
         end)
     end
-    
     local function disableFly()
-        flyEnabled = false
-        if bodyVelocity then bodyVelocity:Destroy(); bodyVelocity = nil end
-        if flyConnection then flyConnection:Disconnect(); flyConnection = nil end
+        fly = false
+        if bodyVel then bodyVel:Destroy(); bodyVel = nil end
+        if flyConn then flyConn:Disconnect(); flyConn = nil end
     end
     
+    -- Noclip
     local function enableNoclip()
-        if noclipConnection then noclipConnection:Disconnect() end
-        noclipEnabled = true
-        noclipConnection = RunService.Stepped:Connect(function()
-            if noclipEnabled and player.Character then
-                for _, part in ipairs(player.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
+        if noclipConn then noclipConn:Disconnect() end
+        noclip = true
+        noclipConn = RunService.Stepped:Connect(function()
+            if noclip and player.Character then
+                for _,p in pairs(player.Character:GetDescendants()) do
+                    if p:IsA("BasePart") then p.CanCollide = false end
                 end
             end
         end)
     end
-    
     local function disableNoclip()
-        noclipEnabled = false
-        if noclipConnection then noclipConnection:Disconnect(); noclipConnection = nil end
+        noclip = false
+        if noclipConn then noclipConn:Disconnect(); noclipConn = nil end
         if player.Character then
-            for _, part in ipairs(player.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = true
-                end
+            for _,p in pairs(player.Character:GetDescendants()) do
+                if p:IsA("BasePart") then p.CanCollide = true end
             end
         end
     end
     
+    -- Infinite Jump
     local function enableInfJump()
-        if jumpConnection then jumpConnection:Disconnect() end
-        infJumpEnabled = true
-        jumpConnection = UserInputService.JumpRequested:Connect(function()
-            if infJumpEnabled and player.Character and player.Character:FindFirstChild("Humanoid") then
+        if jumpConn then jumpConn:Disconnect() end
+        infJump = true
+        jumpConn = UserInputService.JumpRequested:Connect(function()
+            if infJump and player.Character and player.Character:FindFirstChild("Humanoid") then
                 player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
             end
         end)
     end
-    
     local function disableInfJump()
-        infJumpEnabled = false
-        if jumpConnection then jumpConnection:Disconnect(); jumpConnection = nil end
+        infJump = false
+        if jumpConn then jumpConn:Disconnect(); jumpConn = nil end
     end
     
-    -- ==========================================================================
-    -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ╍                            VISUALS                                     ║
-    -- ╚═══════════════════════════════════════════════════════════════════════╝
-    -- ==========================================================================
-    
-    local originalBrightness, originalAmbient, originalOutdoor
-    
+    -- Fullbright
     local function enableFullbright()
-        if fullbrightEnabled then return end
-        originalBrightness = Lighting.Brightness
-        originalAmbient = Lighting.Ambient
-        originalOutdoor = Lighting.OutdoorAmbient
+        if fullbright then return end
+        origLight.Brightness = Lighting.Brightness
+        origLight.Ambient = Lighting.Ambient
+        origLight.Outdoor = Lighting.OutdoorAmbient
         Lighting.Brightness = 2
-        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
-        Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+        Lighting.Ambient = Color3.new(1,1,1)
+        Lighting.OutdoorAmbient = Color3.new(1,1,1)
         Lighting.FogEnd = 100000
-        fullbrightEnabled = true
+        fullbright = true
     end
-    
     local function disableFullbright()
-        if not fullbrightEnabled then return end
-        Lighting.Brightness = originalBrightness or 0.5
-        Lighting.Ambient = originalAmbient or Color3.fromRGB(100, 100, 100)
-        Lighting.OutdoorAmbient = originalOutdoor or Color3.fromRGB(100, 100, 100)
+        if not fullbright then return end
+        Lighting.Brightness = origLight.Brightness
+        Lighting.Ambient = origLight.Ambient
+        Lighting.OutdoorAmbient = origLight.Outdoor
         Lighting.FogEnd = 1000
-        fullbrightEnabled = false
+        fullbright = false
     end
     
-    -- ==========================================================================
-    -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ╍                         HORIZONTAL GUI (HUB)                           ║
-    -- ╚═══════════════════════════════════════════════════════════════════════╝
-    -- ==========================================================================
-    
+    --========================================--
+    --          GUI (HORIZONTAL)              --
+    --========================================--
     local hubGui = Instance.new("ScreenGui")
     hubGui.Name = "JinoXX_Hub"
-    hubGui.Parent = player:WaitForChild("PlayerGui")
+    hubGui.Parent = player.PlayerGui
     
-    local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 400, 0, 420)
-    mainFrame.Position = UDim2.new(0.5, -200, 0.5, -210)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
-    mainFrame.BackgroundTransparency = 0.05
-    mainFrame.BorderSizePixel = 0
-    mainFrame.ClipsDescendants = true
-    mainFrame.Parent = hubGui
-    
+    local main = Instance.new("Frame")
+    main.Size = UDim2.new(0, 420, 0, 400)
+    main.Position = UDim2.new(0.5, -210, 0.5, -200)
+    main.BackgroundColor3 = Color3.fromRGB(10,10,15)
+    main.BackgroundTransparency = 0.05
+    main.BorderSizePixel = 0
+    main.ClipsDescendants = true
+    main.Parent = hubGui
     local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 16)
-    mainCorner.Parent = mainFrame
+    mainCorner.CornerRadius = UDim.new(0,16)
+    mainCorner.Parent = main
     
-    local glowFrame = Instance.new("Frame")
-    glowFrame.Size = UDim2.new(1, 8, 1, 8)
-    glowFrame.Position = UDim2.new(0, -4, 0, -4)
-    glowFrame.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-    glowFrame.BackgroundTransparency = 0.85
-    glowFrame.BorderSizePixel = 0
-    glowFrame.ZIndex = 0
-    glowFrame.Parent = mainFrame
-    
-    local glowCorner = Instance.new("UICorner")
-    glowCorner.CornerRadius = UDim.new(0, 20)
-    glowCorner.Parent = glowFrame
-    
-    -- Title Bar
     local titleBar = Instance.new("Frame")
-    titleBar.Size = UDim2.new(1, 0, 0, 40)
-    titleBar.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+    titleBar.Size = UDim2.new(1,0,0,40)
+    titleBar.BackgroundColor3 = Color3.fromRGB(128,0,255)
     titleBar.BorderSizePixel = 0
-    titleBar.Parent = mainFrame
-    
+    titleBar.Parent = main
     local titleCorner = Instance.new("UICorner")
-    titleCorner.CornerRadius = UDim.new(0, 16)
+    titleCorner.CornerRadius = UDim.new(0,16)
     titleCorner.Parent = titleBar
     
-    local titleText = Instance.new("TextLabel")
-    titleText.Size = UDim2.new(1, -80, 1, 0)
-    titleText.Position = UDim2.new(0, 15, 0, 0)
-    titleText.BackgroundTransparency = 1
-    titleText.Text = "JINOXX DEV | BLOCK SPIN HUB"
-    titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleText.TextScaled = true
-    titleText.Font = Enum.Font.GothamBold
-    titleText.TextXAlignment = Enum.TextXAlignment.Left
-    titleText.Parent = titleBar
+    local titleLbl = Instance.new("TextLabel")
+    titleLbl.Size = UDim2.new(1,-80,1,0)
+    titleLbl.Position = UDim2.new(0,15,0,0)
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Text = "JINOXX DEV | BLOCK SPIN HUB"
+    titleLbl.TextColor3 = Color3.new(1,1,1)
+    titleLbl.TextScaled = true
+    titleLbl.Font = Enum.Font.GothamBold
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+    titleLbl.Parent = titleBar
     
-    local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 35, 0, 35)
-    closeBtn.Position = UDim2.new(1, -42, 0, 2.5)
-    closeBtn.BackgroundColor3 = Color3.fromRGB(80, 0, 160)
-    closeBtn.Text = "✕"
-    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    closeBtn.TextScaled = true
-    closeBtn.BorderSizePixel = 0
-    closeBtn.Parent = titleBar
-    
+    local close = Instance.new("TextButton")
+    close.Size = UDim2.new(0,35,0,35)
+    close.Position = UDim2.new(1,-42,0,2.5)
+    close.BackgroundColor3 = Color3.fromRGB(80,0,160)
+    close.Text = "✕"
+    close.TextColor3 = Color3.new(1,1,1)
+    close.TextScaled = true
+    close.BorderSizePixel = 0
+    close.Parent = titleBar
     local closeCorner = Instance.new("UICorner")
-    closeCorner.CornerRadius = UDim.new(0, 8)
-    closeCorner.Parent = closeBtn
-    
-    closeBtn.MouseButton1Click:Connect(function()
-        hubGui:Destroy()
-    end)
+    closeCorner.CornerRadius = UDim.new(0,8)
+    closeCorner.Parent = close
+    close.MouseButton1Click:Connect(function() hubGui:Destroy() end)
     
     -- Horizontal Tabs
-    local tabs = {"Aimbot", "ESP", "Farm", "Movement", "Visuals"}
-    local tabButtons = {}
+    local tabs = {"Aim","ESP","Farm","Move","Vis"}
+    local tabBtns = {}
     local tabFrames = {}
-    
     local tabBar = Instance.new("Frame")
-    tabBar.Size = UDim2.new(1, 0, 0, 35)
-    tabBar.Position = UDim2.new(0, 0, 0, 40)
-    tabBar.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
+    tabBar.Size = UDim2.new(1,0,0,35)
+    tabBar.Position = UDim2.new(0,0,0,40)
+    tabBar.BackgroundColor3 = Color3.fromRGB(18,18,25)
     tabBar.BorderSizePixel = 0
-    tabBar.Parent = mainFrame
+    tabBar.Parent = main
     
-    for i, tabName in ipairs(tabs) do
+    for i, name in ipairs(tabs) do
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0, 80, 1, 0)
-        btn.Position = UDim2.new(0, (i-1)*80, 0, 0)
-        btn.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-        btn.Text = tabName
-        btn.TextColor3 = Color3.fromRGB(200, 200, 200)
-        btn.TextSize = 12
+        btn.Size = UDim2.new(0,84,1,0)
+        btn.Position = UDim2.new(0, (i-1)*84, 0, 0)
+        btn.BackgroundColor3 = Color3.fromRGB(25,25,35)
+        btn.Text = name
+        btn.TextColor3 = Color3.fromRGB(200,200,200)
+        btn.TextSize = 13
         btn.Font = Enum.Font.GothamSemibold
         btn.BorderSizePixel = 0
         btn.Parent = tabBar
         
         local content = Instance.new("ScrollingFrame")
-        content.Size = UDim2.new(1, -20, 1, -90)
-        content.Position = UDim2.new(0, 10, 0, 80)
+        content.Size = UDim2.new(1,-20,1,-90)
+        content.Position = UDim2.new(0,10,0,80)
         content.BackgroundTransparency = 1
         content.BorderSizePixel = 0
-        content.CanvasSize = UDim2.new(0, 0, 0, 400)
+        content.CanvasSize = UDim2.new(0,0,0,350)
         content.ScrollBarThickness = 4
-        content.ScrollBarImageColor3 = Color3.fromRGB(128, 0, 255)
-        content.Visible = (tabName == "Aimbot")
-        content.Parent = mainFrame
+        content.ScrollBarImageColor3 = Color3.fromRGB(128,0,255)
+        content.Visible = (name == "Aim")
+        content.Parent = main
         
-        tabButtons[tabName] = btn
-        tabFrames[tabName] = content
-        
+        tabBtns[name] = btn
+        tabFrames[name] = content
         btn.MouseButton1Click:Connect(function()
-            for _, v in pairs(tabFrames) do v.Visible = false end
-            for _, v in pairs(tabButtons) do 
-                v.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-                v.TextColor3 = Color3.fromRGB(200, 200, 200)
-            end
+            for _,v in pairs(tabFrames) do v.Visible = false end
+            for _,v in pairs(tabBtns) do v.BackgroundColor3 = Color3.fromRGB(25,25,35); v.TextColor3 = Color3.fromRGB(200,200,200) end
             content.Visible = true
-            btn.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            btn.BackgroundColor3 = Color3.fromRGB(128,0,255)
+            btn.TextColor3 = Color3.new(1,1,1)
         end)
     end
+    tabBtns["Aim"].BackgroundColor3 = Color3.fromRGB(128,0,255)
     
-    tabButtons["Aimbot"].BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-    tabButtons["Aimbot"].TextColor3 = Color3.fromRGB(255, 255, 255)
-    
-    -- Toggle function
-    local function addToggle(parent, text, yPos, offFunc, onFunc)
-        local toggleFrame = Instance.new("Frame")
-        toggleFrame.Size = UDim2.new(1, -20, 0, 38)
-        toggleFrame.Position = UDim2.new(0, 0, 0, yPos)
-        toggleFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
-        toggleFrame.BorderSizePixel = 0
-        toggleFrame.Parent = parent
-        
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 8)
-        corner.Parent = toggleFrame
-        
-        local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(0.65, 0, 1, 0)
-        label.BackgroundTransparency = 1
-        label.Text = text
-        label.TextColor3 = Color3.fromRGB(230, 230, 230)
-        label.TextSize = 13
-        label.Font = Enum.Font.Gotham
-        label.TextXAlignment = Enum.TextXAlignment.Left
-        label.Parent = toggleFrame
-        
-        local toggleBtn = Instance.new("TextButton")
-        toggleBtn.Size = UDim2.new(0, 60, 0, 28)
-        toggleBtn.Position = UDim2.new(1, -70, 0.5, -14)
-        toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
-        toggleBtn.Text = "OFF"
-        toggleBtn.TextSize = 11
-        toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        toggleBtn.Font = Enum.Font.GothamBold
-        toggleBtn.BorderSizePixel = 0
-        toggleBtn.Parent = toggleFrame
-        
-        local btnCorner = Instance.new("UICorner")
-        btnCorner.CornerRadius = UDim.new(0, 6)
-        btnCorner.Parent = toggleBtn
-        
+    local function addToggle(parent, text, y, off, on)
+        local f = Instance.new("Frame")
+        f.Size = UDim2.new(1,-20,0,38)
+        f.Position = UDim2.new(0,0,0,y)
+        f.BackgroundColor3 = Color3.fromRGB(22,22,30)
+        f.BorderSizePixel = 0
+        f.Parent = parent
+        local c = Instance.new("UICorner")
+        c.CornerRadius = UDim.new(0,8)
+        c.Parent = f
+        local lbl = Instance.new("TextLabel")
+        lbl.Size = UDim2.new(0.7,0,1,0)
+        lbl.BackgroundTransparency = 1
+        lbl.Text = text
+        lbl.TextColor3 = Color3.fromRGB(230,230,230)
+        lbl.TextSize = 13
+        lbl.Font = Enum.Font.Gotham
+        lbl.TextXAlignment = Enum.TextXAlignment.Left
+        lbl.Parent = f
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0,60,0,28)
+        btn.Position = UDim2.new(1,-70,0.5,-14)
+        btn.BackgroundColor3 = Color3.fromRGB(50,50,65)
+        btn.Text = "OFF"
+        btn.TextSize = 11
+        btn.TextColor3 = Color3.new(1,1,1)
+        btn.Font = Enum.Font.GothamBold
+        btn.BorderSizePixel = 0
+        btn.Parent = f
+        local btnc = Instance.new("UICorner")
+        btnc.CornerRadius = UDim.new(0,6)
+        btnc.Parent = btn
         local toggled = false
-        toggleBtn.MouseButton1Click:Connect(function()
+        btn.MouseButton1Click:Connect(function()
             toggled = not toggled
-            toggleBtn.BackgroundColor3 = toggled and Color3.fromRGB(128, 0, 255) or Color3.fromRGB(50, 50, 65)
-            toggleBtn.Text = toggled and "ON" or "OFF"
-            if toggled then onFunc() else offFunc() end
+            btn.BackgroundColor3 = toggled and Color3.fromRGB(128,0,255) or Color3.fromRGB(50,50,65)
+            btn.Text = toggled and "ON" or "OFF"
+            if toggled then on() else off() end
         end)
-        return toggleFrame
     end
     
-    -- Populate tabs
-    addToggle(tabFrames["Aimbot"], "Aimbot (Auto Aim)", 5, stopAimbot, function() aimbotEnabled = true; startAimbot() end)
-    addToggle(tabFrames["Aimbot"], "Silent Aim", 48, function() silentAimEnabled = false end, function() silentAimEnabled = true end)
-    addToggle(tabFrames["Aimbot"], "Wallbang", 91, function() wallbangEnabled = false end, function() wallbangEnabled = true end)
+    addToggle(tabFrames["Aim"], "Aimbot", 5, stopAimbot, function() aimbot = true; startAimbot() end)
+    addToggle(tabFrames["ESP"], "ESP Players", 5, function() esp = false; updateESP() end, function() esp = true; updateESP() end)
+    addToggle(tabFrames["Farm"], "Auto ATM", 5, stopFarm, function() autoATM = true; startFarm() end)
+    addToggle(tabFrames["Move"], "Fly", 5, disableFly, enableFly)
+    addToggle(tabFrames["Move"], "Noclip", 48, disableNoclip, enableNoclip)
+    addToggle(tabFrames["Move"], "Inf Jump", 91, disableInfJump, enableInfJump)
+    addToggle(tabFrames["Vis"], "Fullbright", 5, disableFullbright, enableFullbright)
     
-    addToggle(tabFrames["ESP"], "ESP Players", 5, function() espEnabled = false; updateESP() end, function() espEnabled = true; updateESP() end)
-    
-    addToggle(tabFrames["Farm"], "Auto ATM Farm", 5, stopATMFarm, function() autoFarmATM = true; startATMFarm() end)
-    addToggle(tabFrames["Farm"], "Auto Collect Loot", 48, function() autoCollectLoot = false end, function() autoCollectLoot = true end)
-    
-    addToggle(tabFrames["Movement"], "Fly", 5, disableFly, enableFly)
-    addToggle(tabFrames["Movement"], "Noclip", 48, disableNoclip, enableNoclip)
-    addToggle(tabFrames["Movement"], "Infinite Jump", 91, disableInfJump, enableInfJump)
-    
-    addToggle(tabFrames["Visuals"], "Fullbright", 5, disableFullbright, enableFullbright)
-    
-    -- Walk Speed Slider in Movement tab
+    -- Walk Speed slider
     local speedFrame = Instance.new("Frame")
-    speedFrame.Size = UDim2.new(1, -20, 0, 50)
-    speedFrame.Position = UDim2.new(0, 0, 0, 150)
-    speedFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
-    speedFrame.BorderSizePixel = 0
-    speedFrame.Parent = tabFrames["Movement"]
-    
+    speedFrame.Size = UDim2.new(1,-20,0,50)
+    speedFrame.Position = UDim2.new(0,0,0,150)
+    speedFrame.BackgroundColor3 = Color3.fromRGB(22,22,30)
+    speedFrame.Parent = tabFrames["Move"]
     local speedCorner = Instance.new("UICorner")
-    speedCorner.CornerRadius = UDim.new(0, 8)
+    speedCorner.CornerRadius = UDim.new(0,8)
     speedCorner.Parent = speedFrame
-    
-    local speedLabel = Instance.new("TextLabel")
-    speedLabel.Size = UDim2.new(0.6, 0, 0.4, 0)
-    speedLabel.Position = UDim2.new(0, 10, 0, 5)
-    speedLabel.BackgroundTransparency = 1
-    speedLabel.Text = "Walk Speed: 16"
-    speedLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
-    speedLabel.TextSize = 13
-    speedLabel.Font = Enum.Font.Gotham
-    speedLabel.TextXAlignment = Enum.TextXAlignment.Left
-    speedLabel.Parent = speedFrame
-    
+    local speedLbl = Instance.new("TextLabel")
+    speedLbl.Size = UDim2.new(0.6,0,0.4,0)
+    speedLbl.Position = UDim2.new(0,10,0,5)
+    speedLbl.BackgroundTransparency = 1
+    speedLbl.Text = "Walk Speed: 16"
+    speedLbl.TextColor3 = Color3.fromRGB(230,230,230)
+    speedLbl.TextSize = 13
+    speedLbl.Font = Enum.Font.Gotham
+    speedLbl.TextXAlignment = Enum.TextXAlignment.Left
+    speedLbl.Parent = speedFrame
     local speedBox = Instance.new("TextBox")
-    speedBox.Size = UDim2.new(0.25, 0, 0.5, 0)
-    speedBox.Position = UDim2.new(0.73, 0, 0.25, 0)
-    speedBox.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+    speedBox.Size = UDim2.new(0.25,0,0.5,0)
+    speedBox.Position = UDim2.new(0.73,0,0.25,0)
+    speedBox.BackgroundColor3 = Color3.fromRGB(40,40,55)
     speedBox.Text = "16"
-    speedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    speedBox.TextColor3 = Color3.new(1,1,1)
     speedBox.TextSize = 13
     speedBox.Font = Enum.Font.Gotham
     speedBox.BorderSizePixel = 0
     speedBox.Parent = speedFrame
-    
     local speedBoxCorner = Instance.new("UICorner")
-    speedBoxCorner.CornerRadius = UDim.new(0, 6)
+    speedBoxCorner.CornerRadius = UDim.new(0,6)
     speedBoxCorner.Parent = speedBox
-    
     speedBox.FocusLost:Connect(function()
         local val = tonumber(speedBox.Text) or 16
-        val = math.clamp(val, 16, 250)
+        val = math.clamp(val,16,250)
         speedBox.Text = val
-        speedLabel.Text = "Walk Speed: " .. val
+        speedLbl.Text = "Walk Speed: "..val
         if player.Character and player.Character:FindFirstChild("Humanoid") then
             player.Character.Humanoid.WalkSpeed = val
         end
     end)
     
-    -- Dragging
-    local dragToggle = false
-    local dragStart = nil
-    local startPos = nil
-    
-    titleBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragToggle = true
-            dragStart = input.Position
-            startPos = mainFrame.Position
+    -- Drag
+    local drag, dragStart, startPos = false
+    titleBar.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then
+            drag = true
+            dragStart = i.Position
+            startPos = main.Position
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then drag = false end
+    end)
+    UserInputService.InputChanged:Connect(function(i)
+        if drag and i.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = i.Position - dragStart
+            main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
     
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragToggle = false
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if dragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - dragStart
-            mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-    
-    -- Final message
+    -- Notification
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "JINoxX HUB",
-        Text = "All features are now ACTIVE!",
-        Duration = 4
+        Title = "JINoxX",
+        Text = "Hub Loaded Successfully!",
+        Duration = 3
     })
-    
-    print("╔═══════════════════════════════════════════════════════════════════════════════╗")
-    print("║                                                                               ║")
-    print("║                    JINOXX DEV - HUB FULLY LOADED!                             ║")
-    print("║                                                                               ║")
-    print("║  ✅ Aimbot (Auto Aim + Silent Aim + Wallbang)                                 ║")
-    print("║  ✅ ESP (Names UNDER players + Highlight)                                     ║")
-    print("║  ✅ Farm (Auto ATM + Auto Loot)                                               ║")
-    print("║  ✅ Movement (Fly + Noclip + Infinite Jump + Speed)                           ║")
-    print("║  ✅ Visuals (Fullbright)                                                      ║")
-    print("║                                                                               ║")
-    print("╚═══════════════════════════════════════════════════════════════════════════════╝")
+    print("JINOXX DEV HUB ACTIVATED - HORIZONTAL GUI")
 end
