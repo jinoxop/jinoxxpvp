@@ -1,7 +1,7 @@
 --[[
 ╔═══════════════════════════════════════════════════════════════╗
 ║                    JINOXX DEV - BLOCK SPIN HUB                ║
-║                         Version: 3.0                          ║
+║                    VERSION: 4.0 - BLACK/PURPLE                ║
 ║                      Status: FULLY WORKING                    ║
 ╚═══════════════════════════════════════════════════════════════╝
 --]]
@@ -47,6 +47,8 @@ local flyConnection = nil
 local noclipConnection = nil
 local espObjects = {}
 local chamsObjects = {}
+local guiMain = nil
+local toggleButton = nil
 
 -- دالة مساعدة للحصول على اللاعب الأقرب
 local function getClosestPlayer()
@@ -175,15 +177,14 @@ local function startATMFarm()
                     if targetPos then
                         local dist = (targetPos.Position - rootPart.Position).Magnitude
                         if dist < 15 then
-                            -- محاكاة التفاعل
                             local args = {
                                 [1] = "Interact",
                                 [2] = targetPos
                             }
-                            game:GetService("ReplicatedStorage"):FindFirstChild("RemoteEvent"):FireServer(unpack(args))
+                            local remote = game:GetService("ReplicatedStorage"):FindFirstChild("RemoteEvent")
+                            if remote then remote:FireServer(unpack(args)) end
                             task.wait(farmSpeed / 10)
                         elseif dist < 50 then
-                            -- التحرك نحو الـ ATM
                             local direction = (targetPos.Position - rootPart.Position).unit
                             rootPart.CFrame = rootPart.CFrame + direction * farmSpeed
                         end
@@ -338,17 +339,21 @@ Players.PlayerRemoving:Connect(function(plr)
     end
 end)
 
--- GUI متحرك
-local guiMain = Instance.new("ScreenGui")
+-- ============= إنشاء القائمة الرئيسية (عرضية - Horizontal) =============
+
+-- GUI الرئيسي
+guiMain = Instance.new("ScreenGui")
 guiMain.Name = "JinoXX_Main"
 guiMain.Parent = player:WaitForChild("PlayerGui")
 
+-- الإطار الرئيسي - عرضي (Horizontal)
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 400, 0, 450)
-mainFrame.Position = UDim2.new(0.5, -200, 0.5, -225)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-mainFrame.BackgroundTransparency = 0.1
+mainFrame.Size = UDim2.new(0, 700, 0, 450)  -- عرض أكبر
+mainFrame.Position = UDim2.new(0.5, -350, 0.5, -225)
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)  -- أسود غامق
+mainFrame.BackgroundTransparency = 0.05
 mainFrame.BorderSizePixel = 0
+mainFrame.BorderColor3 = Color3.fromRGB(128, 0, 255)  -- بنفسجي
 mainFrame.ClipsDescendants = true
 mainFrame.Parent = guiMain
 
@@ -375,62 +380,110 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- شريط العنوان
+-- شريط العنوان (بنفسجي)
 local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 35)
-titleBar.BackgroundColor3 = Color3.fromRGB(200, 40, 80)
+titleBar.Size = UDim2.new(1, 0, 0, 40)
+titleBar.BackgroundColor3 = Color3.fromRGB(128, 0, 255)  -- بنفسجي
 titleBar.BorderSizePixel = 0
 titleBar.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -40, 1, 0)
-titleLabel.Position = UDim2.new(0, 10, 0, 0)
+titleLabel.Size = UDim2.new(1, -80, 1, 0)
+titleLabel.Position = UDim2.new(0, 15, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "JINOXX DEV - BLOCK SPIN HUB [FULLY LOADED]"
+titleLabel.Text = "JINOXX DEV - BLOCK SPIN HUB [BLACK/PURPLE EDITION]"
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.TextScaled = true
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Parent = titleBar
 
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 35, 1, 0)
-closeBtn.Position = UDim2.new(1, -35, 0, 0)
-closeBtn.BackgroundColor3 = Color3.fromRGB(150, 20, 40)
-closeBtn.Text = "X"
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.TextScaled = true
-closeBtn.Parent = titleBar
-closeBtn.MouseButton1Click:Connect(function()
-    guiMain:Destroy()
+-- زر الإغلاق (يخفي القائمة ويظهر الزر الصغير)
+local closeMenuBtn = Instance.new("TextButton")
+closeMenuBtn.Size = UDim2.new(0, 40, 1, 0)
+closeMenuBtn.Position = UDim2.new(1, -45, 0, 0)
+closeMenuBtn.BackgroundColor3 = Color3.fromRGB(80, 0, 160)
+closeMenuBtn.Text = "X"
+closeMenuBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeMenuBtn.TextScaled = true
+closeMenuBtn.Parent = titleBar
+
+-- ============= الزر الصغير لفتح القائمة من جديد =============
+local smallButton = Instance.new("TextButton")
+smallButton.Size = UDim2.new(0, 50, 0, 50)
+smallButton.Position = UDim2.new(0, 20, 0.5, -25)
+smallButton.BackgroundColor3 = Color3.fromRGB(128, 0, 255)  -- بنفسجي
+smallButton.Text = "J"
+smallButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+smallButton.TextScaled = true
+smallButton.Font = Enum.Font.GothamBold
+smallButton.Visible = false
+smallButton.Parent = guiMain
+
+-- جعل الزر الصغير متحركاً
+local smallDragToggle = false
+local smallDragStart = nil
+local smallStartPos = nil
+smallButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        smallDragToggle = true
+        smallDragStart = input.Position
+        smallStartPos = smallButton.Position
+    end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        smallDragToggle = false
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if smallDragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - smallDragStart
+        smallButton.Position = UDim2.new(smallStartPos.X.Scale, smallStartPos.X.Offset + delta.X, smallStartPos.Y.Scale, smallStartPos.Y.Offset + delta.Y)
+    end
 end)
 
--- تبويبات
+-- وظيفة إخفاء القائمة وإظهار الزر الصغير
+closeMenuBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+    smallButton.Visible = true
+end)
+
+-- وظيفة إظهار القائمة وإخفاء الزر الصغير
+smallButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = true
+    smallButton.Visible = false
+end)
+
+-- ============= التبويبات العرضية (أفقية) =============
 local tabs = {"Aimbot", "ESP", "Farm", "Movement", "Visuals"}
 local activeTab = "Aimbot"
 local tabButtons = {}
 local tabFrames = {}
 
+-- شريط التبويبات (أفقي)
 local tabBar = Instance.new("Frame")
-tabBar.Size = UDim2.new(1, 0, 0, 35)
-tabBar.Position = UDim2.new(0, 0, 0, 35)
-tabBar.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+tabBar.Size = UDim2.new(1, 0, 0, 40)
+tabBar.Position = UDim2.new(0, 0, 0, 40)
+tabBar.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 tabBar.BorderSizePixel = 0
 tabBar.Parent = mainFrame
 
+-- إنشاء التبويبات بشكل أفقي
 for i, tab in ipairs(tabs) do
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 80, 1, 0)
-    btn.Position = UDim2.new(0, (i-1)*80, 0, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+    btn.Size = UDim2.new(0, 140, 1, 0)  -- عرض ثابت
+    btn.Position = UDim2.new(0, (i-1)*140, 0, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     btn.Text = tab
-    btn.TextColor3 = Color3.fromRGB(220, 220, 220)
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
     btn.BorderSizePixel = 0
     btn.Parent = tabBar
     
+    -- إطار المحتوى لكل تبويب
     local frame = Instance.new("ScrollingFrame")
-    frame.Size = UDim2.new(1, -20, 1, -85)
-    frame.Position = UDim2.new(0, 10, 0, 80)
+    frame.Size = UDim2.new(1, -20, 1, -95)
+    frame.Position = UDim2.new(0, 10, 0, 85)
     frame.BackgroundTransparency = 1
     frame.BorderSizePixel = 0
     frame.CanvasSize = UDim2.new(0, 0, 0, 400)
@@ -443,33 +496,29 @@ for i, tab in ipairs(tabs) do
     
     btn.MouseButton1Click:Connect(function()
         for _, v in pairs(tabFrames) do v.Visible = false end
-        for _, v in pairs(tabButtons) do v.BackgroundColor3 = Color3.fromRGB(40, 40, 55) end
+        for _, v in pairs(tabButtons) do 
+            v.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+            v.TextColor3 = Color3.fromRGB(200, 200, 200)
+        end
         frame.Visible = true
-        btn.BackgroundColor3 = Color3.fromRGB(200, 40, 80)
+        btn.BackgroundColor3 = Color3.fromRGB(128, 0, 255)  -- بنفسجي
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
         activeTab = tab
     end)
 end
 
--- دالة إضافة أزرار
-local function addButton(parent, text, yPos, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 35)
-    btn.Position = UDim2.new(0, 0, 0, yPos)
-    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.BorderSizePixel = 0
-    btn.Parent = parent
-    btn.MouseButton1Click:Connect(callback)
-    return btn
-end
+-- تفعيل أول تبويب بشكل افتراضي
+tabButtons["Aimbot"].BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+tabButtons["Aimbot"].TextColor3 = Color3.fromRGB(255, 255, 255)
 
+-- دالة إضافة أزرار التبديل (Toggle)
 local function addToggle(parent, text, yPos, var, onToggle)
     local toggleFrame = Instance.new("Frame")
-    toggleFrame.Size = UDim2.new(1, -20, 0, 35)
+    toggleFrame.Size = UDim2.new(1, -20, 0, 40)
     toggleFrame.Position = UDim2.new(0, 0, 0, yPos)
-    toggleFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    toggleFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
     toggleFrame.BorderSizePixel = 0
+    toggleFrame.BorderColor3 = Color3.fromRGB(128, 0, 255)
     toggleFrame.Parent = parent
     
     local label = Instance.new("TextLabel")
@@ -481,9 +530,9 @@ local function addToggle(parent, text, yPos, var, onToggle)
     label.Parent = toggleFrame
     
     local toggleBtn = Instance.new("TextButton")
-    toggleBtn.Size = UDim2.new(0, 60, 0, 28)
-    toggleBtn.Position = UDim2.new(1, -65, 0.5, -14)
-    toggleBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+    toggleBtn.Size = UDim2.new(0, 70, 0, 30)
+    toggleBtn.Position = UDim2.new(1, -75, 0.5, -15)
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
     toggleBtn.Text = "OFF"
     toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     toggleBtn.BorderSizePixel = 0
@@ -492,107 +541,181 @@ local function addToggle(parent, text, yPos, var, onToggle)
     local toggled = false
     toggleBtn.MouseButton1Click:Connect(function()
         toggled = not toggled
-        toggleBtn.BackgroundColor3 = toggled and Color3.fromRGB(200, 40, 80) or Color3.fromRGB(80, 80, 100)
+        toggleBtn.BackgroundColor3 = toggled and Color3.fromRGB(128, 0, 255) or Color3.fromRGB(60, 60, 80)
         toggleBtn.Text = toggled and "ON" or "OFF"
         if toggled then onToggle() else var() end
     end)
     return toggleFrame
 end
 
--- Aimbot Tab
+-- دالة إضافة شريط تمرير (Slider)
+local function addSlider(parent, text, yPos, minVal, maxVal, defaultVal, callback)
+    local sliderFrame = Instance.new("Frame")
+    sliderFrame.Size = UDim2.new(1, -20, 0, 55)
+    sliderFrame.Position = UDim2.new(0, 0, 0, yPos)
+    sliderFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    sliderFrame.BorderSizePixel = 0
+    sliderFrame.Parent = parent
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0, 20)
+    label.BackgroundTransparency = 1
+    label.Text = text .. ": " .. defaultVal
+    label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = sliderFrame
+    
+    local slider = Instance.new("Frame")
+    slider.Size = UDim2.new(1, -20, 0, 6)
+    slider.Position = UDim2.new(0, 0, 0, 35)
+    slider.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+    slider.BorderSizePixel = 0
+    slider.Parent = sliderFrame
+    
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new((defaultVal - minVal) / (maxVal - minVal), 0, 1, 0)
+    fill.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+    fill.BorderSizePixel = 0
+    fill.Parent = slider
+    
+    local value = defaultVal
+    local draggingSlider = false
+    
+    slider.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            draggingSlider = true
+        end
+    end)
+    
+    slider.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            draggingSlider = false
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local scale = math.clamp((input.Position.X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
+            value = minVal + (maxVal - minVal) * scale
+            value = math.floor(value * 10) / 10
+            fill.Size = UDim2.new(scale, 0, 1, 0)
+            label.Text = text .. ": " .. value
+            callback(value)
+        end
+    end)
+    
+    return sliderFrame
+end
+
+-- ============= Aimbot Tab =============
 local aimbotFrame = tabFrames["Aimbot"]
 addToggle(aimbotFrame, "Aimbot (Auto Aim)", 5, stopAimbot, function()
     aimbotEnabled = true
     startAimbot()
 end)
-addToggle(aimbotFrame, "Silent Aim", 45, function() silentAimEnabled = false end, function()
+addToggle(aimbotFrame, "Silent Aim", 50, function() silentAimEnabled = false end, function()
     silentAimEnabled = true
     setupSilentAim()
 end)
-addToggle(aimbotFrame, "Wallbang", 85, function() wallbangEnabled = false end, function()
+addToggle(aimbotFrame, "Wallbang", 95, function() wallbangEnabled = false end, function()
     wallbangEnabled = true
 end)
+addSlider(aimbotFrame, "Aim Range", 150, 50, 300, 150, function(val)
+    aimRange = val
+end)
+addSlider(aimbotFrame, "FOV", 210, 50, 360, 180, function(val)
+    aimFOV = val
+end)
 
--- ESP Tab
+-- ============= ESP Tab =============
 local espFrame = tabFrames["ESP"]
 addToggle(espFrame, "ESP Players", 5, function() espEnabled = false; updateESP() end, function()
     espEnabled = true
     updateESP()
 end)
-addToggle(espFrame, "ESP ATM", 45, function() espATMEnabled = false end, function()
+addToggle(espFrame, "ESP ATM", 50, function() espATMEnabled = false end, function()
     espATMEnabled = true
 end)
-addToggle(espFrame, "ESP Loot", 85, function() espLootEnabled = false end, function()
+addToggle(espFrame, "ESP Loot", 95, function() espLootEnabled = false end, function()
     espLootEnabled = true
 end)
+addSlider(espFrame, "ESP Max Distance", 150, 50, 500, 250, function(val)
+    espMaxDist = val
+end)
 
--- Farm Tab
+-- ============= Farm Tab =============
 local farmFrame = tabFrames["Farm"]
 addToggle(farmFrame, "Auto ATM Farm", 5, stopATMFarm, function()
     autoFarmATM = true
     startATMFarm()
 end)
-addToggle(farmFrame, "Auto Collect Loot", 45, function() autoCollectLoot = false end, function()
+addToggle(farmFrame, "Auto Collect Loot", 50, function() autoCollectLoot = false end, function()
     autoCollectLoot = true
 end)
-addToggle(farmFrame, "Auto Fish", 85, function() autoFish = false end, function()
+addToggle(farmFrame, "Auto Fish", 95, function() autoFish = false end, function()
     autoFish = true
 end)
-addToggle(farmFrame, "Auto Buy Weapon", 125, function() autoBuyWeapon = false end, function()
+addToggle(farmFrame, "Auto Buy Weapon", 140, function() autoBuyWeapon = false end, function()
     autoBuyWeapon = true
 end)
+addSlider(farmFrame, "Farm Speed", 195, 1, 20, 10, function(val)
+    farmSpeed = val
+end)
 
--- Movement Tab
+-- ============= Movement Tab =============
 local movementFrame = tabFrames["Movement"]
 addToggle(movementFrame, "Fly", 5, disableFly, enableFly)
-addToggle(movementFrame, "Noclip", 45, disableNoclip, enableNoclip)
-addToggle(movementFrame, "Infinite Jump", 85, disableInfJump, enableInfJump)
+addToggle(movementFrame, "Noclip", 50, disableNoclip, enableNoclip)
+addToggle(movementFrame, "Infinite Jump", 95, disableInfJump, enableInfJump)
 
--- Visuals Tab
-local visualsFrame = tabFrames["Visuals"]
-addToggle(visualsFrame, "Fullbright", 5, disableFullbright, enableFullbright)
-addToggle(visualsFrame, "Chams (Red Outline)", 45, disableChams, enableChams)
-
--- تحديث سرعة المشي والطيران
-local walkSpeedSlider = Instance.new("Frame")
-walkSpeedSlider.Size = UDim2.new(1, -20, 0, 45)
-walkSpeedSlider.Position = UDim2.new(0, 0, 0, 165)
-walkSpeedSlider.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-walkSpeedSlider.Parent = movementFrame
+-- شريط سرعة المشي
+local walkSpeedFrame = Instance.new("Frame")
+walkSpeedFrame.Size = UDim2.new(1, -20, 0, 55)
+walkSpeedFrame.Position = UDim2.new(0, 0, 0, 150)
+walkSpeedFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+walkSpeedFrame.BorderSizePixel = 0
+walkSpeedFrame.Parent = movementFrame
 
 local wsLabel = Instance.new("TextLabel")
-wsLabel.Size = UDim2.new(0.8, 0, 0.5, 0)
+wsLabel.Size = UDim2.new(1, 0, 0, 20)
 wsLabel.BackgroundTransparency = 1
 wsLabel.Text = "Walk Speed: 16"
 wsLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
 wsLabel.TextXAlignment = Enum.TextXAlignment.Left
-wsLabel.Parent = walkSpeedSlider
+wsLabel.Parent = walkSpeedFrame
 
 local wsSlider = Instance.new("TextBox")
-wsSlider.Size = UDim2.new(0.4, 0, 0.4, 0)
-wsSlider.Position = UDim2.new(0.6, 0, 0.3, 0)
-wsSlider.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+wsSlider.Size = UDim2.new(0.3, 0, 0.35, 0)
+wsSlider.Position = UDim2.new(0.7, 0, 0.55, -10)
+wsSlider.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
 wsSlider.Text = "16"
 wsSlider.TextColor3 = Color3.fromRGB(255, 255, 255)
-wsSlider.Parent = walkSpeedSlider
+wsSlider.Parent = walkSpeedFrame
 wsSlider.FocusLost:Connect(function()
     local val = tonumber(wsSlider.Text) or 16
     val = math.clamp(val, 16, 250)
     wsSlider.Text = val
     wsLabel.Text = "Walk Speed: " .. val
-    player.Character.Humanoid.WalkSpeed = val
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        player.Character.Humanoid.WalkSpeed = val
+    end
 end)
 
--- رسالة التفعيل
+-- ============= Visuals Tab =============
+local visualsFrame = tabFrames["Visuals"]
+addToggle(visualsFrame, "Fullbright", 5, disableFullbright, enableFullbright)
+addToggle(visualsFrame, "Chams (Red Outline)", 50, disableChams, enableChams)
+
+-- ============= رسالة التفعيل النهائية =============
 print("╔═══════════════════════════════════════════════════════════════╗")
 print("║         JINOXX DEV - BLOCK SPIN HUB [LOADED SUCCESSFULLY]     ║")
 print("║                   ALL FEATURES ARE WORKING                    ║")
+print("║              BLACK/PURPLE EDITION - HORIZONTAL GUI            ║")
 print("║                  MADE BY JINOXX DEV - 2026                    ║")
 print("╚═══════════════════════════════════════════════════════════════╝")
 
--- إشعار في اللعبة
-game.StarterGui:SetCore("SendNotification", {
+game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "JINOXX DEV",
-    Text = "Block Spin Hub Loaded Successfully!",
+    Text = "Block Spin Hub Loaded Successfully! (Black/Purple Edition)",
     Duration = 5
 })
