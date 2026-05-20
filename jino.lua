@@ -1,7 +1,7 @@
 --[[
 ╔═══════════════════════════════════════════════════════════════╗
 ║                    JINOXX DEV - BLOCK SPIN HUB                ║
-║                    VERSION: 4.0 - BLACK/PURPLE                ║
+║                    VERSION: 5.0 - MINIMAL EDITION             ║
 ║                      Status: FULLY WORKING                    ║
 ╚═══════════════════════════════════════════════════════════════╝
 --]]
@@ -49,6 +49,7 @@ local espObjects = {}
 local chamsObjects = {}
 local guiMain = nil
 local toggleButton = nil
+local isMinimized = false  -- متغير حالة التصغير
 
 -- دالة مساعدة للحصول على اللاعب الأقرب
 local function getClosestPlayer()
@@ -339,23 +340,28 @@ Players.PlayerRemoving:Connect(function(plr)
     end
 end)
 
--- ============= إنشاء القائمة الرئيسية (عرضية - Horizontal) =============
+-- ============= إنشاء القائمة الرئيسية (حجم صغير + حواف دائرية) =============
 
 -- GUI الرئيسي
 guiMain = Instance.new("ScreenGui")
 guiMain.Name = "JinoXX_Main"
 guiMain.Parent = player:WaitForChild("PlayerGui")
 
--- الإطار الرئيسي - عرضي (Horizontal)
+-- الإطار الرئيسي (حجم صغير - 400x400)
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 700, 0, 450)  -- عرض أكبر
-mainFrame.Position = UDim2.new(0.5, -350, 0.5, -225)
+mainFrame.Size = UDim2.new(0, 380, 0, 400)  -- حجم صغير
+mainFrame.Position = UDim2.new(0.5, -190, 0.5, -200)
 mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)  -- أسود غامق
 mainFrame.BackgroundTransparency = 0.05
 mainFrame.BorderSizePixel = 0
 mainFrame.BorderColor3 = Color3.fromRGB(128, 0, 255)  -- بنفسجي
 mainFrame.ClipsDescendants = true
 mainFrame.Parent = guiMain
+
+-- حواف دائرية (باستخدام UICorner)
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 12)
+mainCorner.Parent = mainFrame
 
 -- جعل الإطار متحرك (دراغ)
 local dragToggle = false
@@ -380,38 +386,98 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- شريط العنوان (بنفسجي)
+-- شريط العنوان (بنفسجي - حواف دائرية عليا فقط)
 local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 40)
+titleBar.Size = UDim2.new(1, 0, 0, 35)
 titleBar.BackgroundColor3 = Color3.fromRGB(128, 0, 255)  -- بنفسجي
 titleBar.BorderSizePixel = 0
 titleBar.Parent = mainFrame
 
+-- حواف دائرية للشريط العلوي
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 12)
+titleCorner.Parent = titleBar
+
+-- قناع لجعل الحواف العلوية فقط دائرية
+local titleMask = Instance.new("CanvasGroup")
+titleMask.Size = UDim2.new(1, 0, 1, 0)
+titleMask.BackgroundTransparency = 1
+titleMask.Parent = titleBar
+
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -80, 1, 0)
-titleLabel.Position = UDim2.new(0, 15, 0, 0)
+titleLabel.Size = UDim2.new(1, -70, 1, 0)
+titleLabel.Position = UDim2.new(0, 10, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "JINOXX DEV - BLOCK SPIN HUB [BLACK/PURPLE EDITION]"
+titleLabel.Text = "JINOXX DEV"
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.TextScaled = true
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Parent = titleBar
 
--- زر الإغلاق (يخفي القائمة ويظهر الزر الصغير)
+-- زر الإغلاق (يخفي القائمة)
 local closeMenuBtn = Instance.new("TextButton")
-closeMenuBtn.Size = UDim2.new(0, 40, 1, 0)
-closeMenuBtn.Position = UDim2.new(1, -45, 0, 0)
+closeMenuBtn.Size = UDim2.new(0, 30, 1, 0)
+closeMenuBtn.Position = UDim2.new(1, -35, 0, 0)
 closeMenuBtn.BackgroundColor3 = Color3.fromRGB(80, 0, 160)
 closeMenuBtn.Text = "X"
 closeMenuBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeMenuBtn.TextScaled = true
 closeMenuBtn.Parent = titleBar
 
--- ============= الزر الصغير لفتح القائمة من جديد =============
+-- ============= زر التكبير/التصغير في الزاوية اليمنى السفلية =============
+local resizeBtn = Instance.new("TextButton")
+resizeBtn.Size = UDim2.new(0, 30, 0, 30)
+resizeBtn.Position = UDim2.new(1, -35, 1, -35)
+resizeBtn.BackgroundColor3 = Color3.fromRGB(128, 0, 255)  -- بنفسجي
+resizeBtn.Text = "□"
+resizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+resizeBtn.TextScaled = true
+resizeBtn.BorderSizePixel = 0
+resizeBtn.Parent = mainFrame
+
+-- حواف دائرية للزر
+local resizeCorner = Instance.new("UICorner")
+resizeCorner.CornerRadius = UDim.new(0, 6)
+resizeCorner.Parent = resizeBtn
+
+-- وظيفة التكبير والتصغير
+local function toggleSize()
+    isMinimized = not isMinimized
+    
+    if isMinimized then
+        -- تصغير القائمة
+        local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        local goal = {Size = UDim2.new(0, 180, 0, 50)}
+        local tween = TweenService:Create(mainFrame, tweenInfo, goal)
+        tween:Play()
+        resizeBtn.Text = "□"
+        -- إخفاء المحتوى
+        tabBar.Visible = false
+        for _, frame in pairs(tabFrames) do 
+            if frame then frame.Visible = false end
+        end
+    else
+        -- تكبير القائمة
+        local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        local goal = {Size = UDim2.new(0, 380, 0, 400)}
+        local tween = TweenService:Create(mainFrame, tweenInfo, goal)
+        tween:Play()
+        resizeBtn.Text = "□"
+        -- إظهار المحتوى
+        tabBar.Visible = true
+        if tabFrames[activeTab] then
+            tabFrames[activeTab].Visible = true
+        end
+    end
+end
+
+resizeBtn.MouseButton1Click:Connect(toggleSize)
+
+-- الزر الصغير لفتح القائمة (عند إغلاقها)
 local smallButton = Instance.new("TextButton")
-smallButton.Size = UDim2.new(0, 50, 0, 50)
-smallButton.Position = UDim2.new(0, 20, 0.5, -25)
+smallButton.Size = UDim2.new(0, 45, 0, 45)
+smallButton.Position = UDim2.new(0, 20, 0.5, -22.5)
 smallButton.BackgroundColor3 = Color3.fromRGB(128, 0, 255)  -- بنفسجي
 smallButton.Text = "J"
 smallButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -419,6 +485,11 @@ smallButton.TextScaled = true
 smallButton.Font = Enum.Font.GothamBold
 smallButton.Visible = false
 smallButton.Parent = guiMain
+
+-- حواف دائرية للزر الصغير
+local smallCorner = Instance.new("UICorner")
+smallCorner.CornerRadius = UDim.new(0, 10)
+smallCorner.Parent = smallButton
 
 -- جعل الزر الصغير متحركاً
 local smallDragToggle = false
@@ -456,15 +527,15 @@ smallButton.MouseButton1Click:Connect(function()
 end)
 
 -- ============= التبويبات العرضية (أفقية) =============
-local tabs = {"Aimbot", "ESP", "Farm", "Movement", "Visuals"}
-local activeTab = "Aimbot"
+local tabs = {"Aim", "ESP", "Farm", "Move", "Vis"}
+local activeTab = "Aim"
 local tabButtons = {}
 local tabFrames = {}
 
--- شريط التبويبات (أفقي)
+-- شريط التبويبات (أفقي - أصغر)
 local tabBar = Instance.new("Frame")
-tabBar.Size = UDim2.new(1, 0, 0, 40)
-tabBar.Position = UDim2.new(0, 0, 0, 40)
+tabBar.Size = UDim2.new(1, 0, 0, 30)
+tabBar.Position = UDim2.new(0, 0, 0, 35)
 tabBar.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 tabBar.BorderSizePixel = 0
 tabBar.Parent = mainFrame
@@ -472,22 +543,23 @@ tabBar.Parent = mainFrame
 -- إنشاء التبويبات بشكل أفقي
 for i, tab in ipairs(tabs) do
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 140, 1, 0)  -- عرض ثابت
-    btn.Position = UDim2.new(0, (i-1)*140, 0, 0)
+    btn.Size = UDim2.new(0, 76, 1, 0)  -- عرض أصغر
+    btn.Position = UDim2.new(0, (i-1)*76, 0, 0)
     btn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     btn.Text = tab
     btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.TextSize = 12
     btn.BorderSizePixel = 0
     btn.Parent = tabBar
     
     -- إطار المحتوى لكل تبويب
     local frame = Instance.new("ScrollingFrame")
-    frame.Size = UDim2.new(1, -20, 1, -95)
-    frame.Position = UDim2.new(0, 10, 0, 85)
+    frame.Size = UDim2.new(1, -10, 1, -80)
+    frame.Position = UDim2.new(0, 5, 0, 70)
     frame.BackgroundTransparency = 1
     frame.BorderSizePixel = 0
-    frame.CanvasSize = UDim2.new(0, 0, 0, 400)
-    frame.ScrollBarThickness = 6
+    frame.CanvasSize = UDim2.new(0, 0, 0, 350)
+    frame.ScrollBarThickness = 4
     frame.Visible = (tab == activeTab)
     frame.Parent = mainFrame
     
@@ -495,7 +567,7 @@ for i, tab in ipairs(tabs) do
     tabFrames[tab] = frame
     
     btn.MouseButton1Click:Connect(function()
-        for _, v in pairs(tabFrames) do v.Visible = false end
+        for _, v in pairs(tabFrames) do if v then v.Visible = false end end
         for _, v in pairs(tabButtons) do 
             v.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
             v.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -508,35 +580,46 @@ for i, tab in ipairs(tabs) do
 end
 
 -- تفعيل أول تبويب بشكل افتراضي
-tabButtons["Aimbot"].BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-tabButtons["Aimbot"].TextColor3 = Color3.fromRGB(255, 255, 255)
+tabButtons["Aim"].BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+tabButtons["Aim"].TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- دالة إضافة أزرار التبديل (Toggle)
+-- دالة إضافة أزرار التبديل (Toggle) - بحجم أصغر
 local function addToggle(parent, text, yPos, var, onToggle)
     local toggleFrame = Instance.new("Frame")
-    toggleFrame.Size = UDim2.new(1, -20, 0, 40)
+    toggleFrame.Size = UDim2.new(1, -10, 0, 32)
     toggleFrame.Position = UDim2.new(0, 0, 0, yPos)
     toggleFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
     toggleFrame.BorderSizePixel = 0
     toggleFrame.BorderColor3 = Color3.fromRGB(128, 0, 255)
     toggleFrame.Parent = parent
     
+    -- حواف دائرية
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = toggleFrame
+    
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0.7, 0, 1, 0)
+    label.Size = UDim2.new(0.65, 0, 1, 0)
     label.BackgroundTransparency = 1
     label.Text = text
     label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    label.TextSize = 12
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.Parent = toggleFrame
     
     local toggleBtn = Instance.new("TextButton")
-    toggleBtn.Size = UDim2.new(0, 70, 0, 30)
-    toggleBtn.Position = UDim2.new(1, -75, 0.5, -15)
+    toggleBtn.Size = UDim2.new(0, 50, 0, 24)
+    toggleBtn.Position = UDim2.new(1, -55, 0.5, -12)
     toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
     toggleBtn.Text = "OFF"
+    toggleBtn.TextSize = 11
     toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     toggleBtn.BorderSizePixel = 0
     toggleBtn.Parent = toggleFrame
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 4)
+    btnCorner.Parent = toggleBtn
     
     local toggled = false
     toggleBtn.MouseButton1Click:Connect(function()
@@ -548,83 +631,18 @@ local function addToggle(parent, text, yPos, var, onToggle)
     return toggleFrame
 end
 
--- دالة إضافة شريط تمرير (Slider)
-local function addSlider(parent, text, yPos, minVal, maxVal, defaultVal, callback)
-    local sliderFrame = Instance.new("Frame")
-    sliderFrame.Size = UDim2.new(1, -20, 0, 55)
-    sliderFrame.Position = UDim2.new(0, 0, 0, yPos)
-    sliderFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-    sliderFrame.BorderSizePixel = 0
-    sliderFrame.Parent = parent
-    
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 0, 20)
-    label.BackgroundTransparency = 1
-    label.Text = text .. ": " .. defaultVal
-    label.TextColor3 = Color3.fromRGB(220, 220, 220)
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = sliderFrame
-    
-    local slider = Instance.new("Frame")
-    slider.Size = UDim2.new(1, -20, 0, 6)
-    slider.Position = UDim2.new(0, 0, 0, 35)
-    slider.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-    slider.BorderSizePixel = 0
-    slider.Parent = sliderFrame
-    
-    local fill = Instance.new("Frame")
-    fill.Size = UDim2.new((defaultVal - minVal) / (maxVal - minVal), 0, 1, 0)
-    fill.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-    fill.BorderSizePixel = 0
-    fill.Parent = slider
-    
-    local value = defaultVal
-    local draggingSlider = false
-    
-    slider.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            draggingSlider = true
-        end
-    end)
-    
-    slider.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            draggingSlider = false
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local scale = math.clamp((input.Position.X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
-            value = minVal + (maxVal - minVal) * scale
-            value = math.floor(value * 10) / 10
-            fill.Size = UDim2.new(scale, 0, 1, 0)
-            label.Text = text .. ": " .. value
-            callback(value)
-        end
-    end)
-    
-    return sliderFrame
-end
-
 -- ============= Aimbot Tab =============
-local aimbotFrame = tabFrames["Aimbot"]
-addToggle(aimbotFrame, "Aimbot (Auto Aim)", 5, stopAimbot, function()
+local aimbotFrame = tabFrames["Aim"]
+addToggle(aimbotFrame, "Aimbot", 5, stopAimbot, function()
     aimbotEnabled = true
     startAimbot()
 end)
-addToggle(aimbotFrame, "Silent Aim", 50, function() silentAimEnabled = false end, function()
+addToggle(aimbotFrame, "Silent Aim", 42, function() silentAimEnabled = false end, function()
     silentAimEnabled = true
     setupSilentAim()
 end)
-addToggle(aimbotFrame, "Wallbang", 95, function() wallbangEnabled = false end, function()
+addToggle(aimbotFrame, "Wallbang", 79, function() wallbangEnabled = false end, function()
     wallbangEnabled = true
-end)
-addSlider(aimbotFrame, "Aim Range", 150, 50, 300, 150, function(val)
-    aimRange = val
-end)
-addSlider(aimbotFrame, "FOV", 210, 50, 360, 180, function(val)
-    aimFOV = val
 end)
 
 -- ============= ESP Tab =============
@@ -633,89 +651,50 @@ addToggle(espFrame, "ESP Players", 5, function() espEnabled = false; updateESP()
     espEnabled = true
     updateESP()
 end)
-addToggle(espFrame, "ESP ATM", 50, function() espATMEnabled = false end, function()
+addToggle(espFrame, "ESP ATM", 42, function() espATMEnabled = false end, function()
     espATMEnabled = true
 end)
-addToggle(espFrame, "ESP Loot", 95, function() espLootEnabled = false end, function()
+addToggle(espFrame, "ESP Loot", 79, function() espLootEnabled = false end, function()
     espLootEnabled = true
-end)
-addSlider(espFrame, "ESP Max Distance", 150, 50, 500, 250, function(val)
-    espMaxDist = val
 end)
 
 -- ============= Farm Tab =============
 local farmFrame = tabFrames["Farm"]
-addToggle(farmFrame, "Auto ATM Farm", 5, stopATMFarm, function()
+addToggle(farmFrame, "Auto ATM", 5, stopATMFarm, function()
     autoFarmATM = true
     startATMFarm()
 end)
-addToggle(farmFrame, "Auto Collect Loot", 50, function() autoCollectLoot = false end, function()
+addToggle(farmFrame, "Auto Loot", 42, function() autoCollectLoot = false end, function()
     autoCollectLoot = true
 end)
-addToggle(farmFrame, "Auto Fish", 95, function() autoFish = false end, function()
+addToggle(farmFrame, "Auto Fish", 79, function() autoFish = false end, function()
     autoFish = true
 end)
-addToggle(farmFrame, "Auto Buy Weapon", 140, function() autoBuyWeapon = false end, function()
+addToggle(farmFrame, "Auto Buy Gun", 116, function() autoBuyWeapon = false end, function()
     autoBuyWeapon = true
-end)
-addSlider(farmFrame, "Farm Speed", 195, 1, 20, 10, function(val)
-    farmSpeed = val
 end)
 
 -- ============= Movement Tab =============
-local movementFrame = tabFrames["Movement"]
+local movementFrame = tabFrames["Move"]
 addToggle(movementFrame, "Fly", 5, disableFly, enableFly)
-addToggle(movementFrame, "Noclip", 50, disableNoclip, enableNoclip)
-addToggle(movementFrame, "Infinite Jump", 95, disableInfJump, enableInfJump)
-
--- شريط سرعة المشي
-local walkSpeedFrame = Instance.new("Frame")
-walkSpeedFrame.Size = UDim2.new(1, -20, 0, 55)
-walkSpeedFrame.Position = UDim2.new(0, 0, 0, 150)
-walkSpeedFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-walkSpeedFrame.BorderSizePixel = 0
-walkSpeedFrame.Parent = movementFrame
-
-local wsLabel = Instance.new("TextLabel")
-wsLabel.Size = UDim2.new(1, 0, 0, 20)
-wsLabel.BackgroundTransparency = 1
-wsLabel.Text = "Walk Speed: 16"
-wsLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
-wsLabel.TextXAlignment = Enum.TextXAlignment.Left
-wsLabel.Parent = walkSpeedFrame
-
-local wsSlider = Instance.new("TextBox")
-wsSlider.Size = UDim2.new(0.3, 0, 0.35, 0)
-wsSlider.Position = UDim2.new(0.7, 0, 0.55, -10)
-wsSlider.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-wsSlider.Text = "16"
-wsSlider.TextColor3 = Color3.fromRGB(255, 255, 255)
-wsSlider.Parent = walkSpeedFrame
-wsSlider.FocusLost:Connect(function()
-    local val = tonumber(wsSlider.Text) or 16
-    val = math.clamp(val, 16, 250)
-    wsSlider.Text = val
-    wsLabel.Text = "Walk Speed: " .. val
-    if player.Character and player.Character:FindFirstChild("Humanoid") then
-        player.Character.Humanoid.WalkSpeed = val
-    end
-end)
+addToggle(movementFrame, "Noclip", 42, disableNoclip, enableNoclip)
+addToggle(movementFrame, "Inf Jump", 79, disableInfJump, enableInfJump)
 
 -- ============= Visuals Tab =============
-local visualsFrame = tabFrames["Visuals"]
+local visualsFrame = tabFrames["Vis"]
 addToggle(visualsFrame, "Fullbright", 5, disableFullbright, enableFullbright)
-addToggle(visualsFrame, "Chams (Red Outline)", 50, disableChams, enableChams)
+addToggle(visualsFrame, "Chams", 42, disableChams, enableChams)
 
 -- ============= رسالة التفعيل النهائية =============
 print("╔═══════════════════════════════════════════════════════════════╗")
 print("║         JINOXX DEV - BLOCK SPIN HUB [LOADED SUCCESSFULLY]     ║")
 print("║                   ALL FEATURES ARE WORKING                    ║")
-print("║              BLACK/PURPLE EDITION - HORIZONTAL GUI            ║")
+print("║            MINIMAL EDITION - ROUNDED CORNERS                  ║")
 print("║                  MADE BY JINOXX DEV - 2026                    ║")
 print("╚═══════════════════════════════════════════════════════════════╝")
 
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "JINOXX DEV",
-    Text = "Block Spin Hub Loaded Successfully! (Black/Purple Edition)",
-    Duration = 5
+    Text = "Block Spin Hub Loaded! (Minimal Edition)",
+    Duration = 3
 })
