@@ -8,15 +8,15 @@
 ║     ██║ ██║██║ ╚████║╚██████╔╝██╔╝ ██╗██║  ██║     ██████╔╝███████╗██║       ║
 ║     ╚═╝ ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝     ╚═════╝ ╚══════╝╚═╝       ║
 ║                                                                               ║
-║              JINOXX DEV - BLOCK SPIN HUB [VERCEL KEY SYSTEM]                  ║
-║                           VERSION: 8.0 - INTEGRATED                          ║
+║              JINOXX DEV - BLOCK SPIN HUB [PASSWORD: JINOXX DEV]              ║
+║                           VERSION: 9.0 - HORIZONTAL                          ║
 ║                                                                               ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 --]]
 
 -- ==============================================================================
 -- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║                          INITIALIZATION                                   ║
+-- ║                          PASSWORD SYSTEM                                  ║
 -- ╚═══════════════════════════════════════════════════════════════════════════╝
 -- ==============================================================================
 
@@ -27,336 +27,165 @@ local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local Lighting = game:GetService("Lighting")
-local HttpService = game:GetService("HttpService")
-local VirtualUser = game:GetService("VirtualUser")
 local VirtualInputManager = game:GetService("VirtualInputManager")
+local VirtualUser = game:GetService("VirtualUser")
 
--- ==============================================================================
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║                    KEY VALIDATION FROM VERCEL                             ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
--- ==============================================================================
+local PASSWORD = "JINOXX DEV"  -- كلمة المرور الصحيحة (حساسة للحروف الكبيرة)
 
-local VERCEL_API = "https://fluffy-invention-lac.vercel.app/api/validate"
-local usedKeysCache = {}
+-- نافذة إدخال الباسورد
+local passwordGui = Instance.new("ScreenGui")
+passwordGui.Name = "JinoXX_Password"
+passwordGui.Parent = player:WaitForChild("PlayerGui")
 
--- دالة التحقق من الكود عبر رابط Vercel
-local function validateKeyWithVercel(key, username)
-    -- محاكاة التحقق (لأن الموقع الحالي هو صفحة ثابتة)
-    -- في النسخة المتكاملة، يجب إضافة API endpoint في Vercel
-    -- حالياً نستخدم نظام تخزين محلي للعرض
-    
-    -- التحقق من صيغة الكود (XXXX-XXXX-XXXX)
-    local pattern = "^[A-Z0-9]%-[A-Z0-9]%-[A-Z0-9]$"
-    if not string.match(key, pattern) then
-        return false, "Invalid key format"
-    end
-    
-    -- التحقق من أن الكود لم يستخدم من قبل لهذا المستخدم
-    local cacheKey = key .. "_" .. username
-    if usedKeysCache[cacheKey] then
-        return false, "Key already used"
-    end
-    
-    -- محاكاة صلاحية 6 ساعات
-    usedKeysCache[cacheKey] = {
-        used = true,
-        expiry = os.time() + (6 * 60 * 60)
-    }
-    
-    return true, "Valid key"
-end
+-- الخلفية
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+bg.BackgroundTransparency = 0.75
+bg.Parent = passwordGui
 
--- ==============================================================================
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║                      LOGIN GUI (JINOXX STYLE)                             ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
--- ==============================================================================
+-- النافذة الرئيسية
+local passFrame = Instance.new("Frame")
+passFrame.Size = UDim2.new(0, 380, 0, 280)
+passFrame.Position = UDim2.new(0.5, -190, 0.5, -140)
+passFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+passFrame.BackgroundTransparency = 0.05
+passFrame.BorderSizePixel = 0
+passFrame.ClipsDescendants = true
+passFrame.Parent = passwordGui
 
--- التأكد من عدم وجود GUI سابق
-if game.Players.LocalPlayer.PlayerGui:FindFirstChild("JinoXX_LoginGUI") then
-    game.Players.LocalPlayer.PlayerGui:FindFirstChild("JinoXX_LoginGUI"):Destroy()
-end
+local passCorner = Instance.new("UICorner")
+passCorner.CornerRadius = UDim.new(0, 20)
+passCorner.Parent = passFrame
 
-local loginGui = Instance.new("ScreenGui")
-loginGui.Name = "JinoXX_LoginGUI"
-loginGui.Parent = player:WaitForChild("PlayerGui")
+-- توهج بنفسجي
+local passGlow = Instance.new("Frame")
+passGlow.Size = UDim2.new(1, 12, 1, 12)
+passGlow.Position = UDim2.new(0, -6, 0, -6)
+passGlow.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+passGlow.BackgroundTransparency = 0.85
+passGlow.BorderSizePixel = 0
+passGlow.ZIndex = 0
+passGlow.Parent = passFrame
 
--- الخلفية السوداء الشفافة
-local bgOverlay = Instance.new("Frame")
-bgOverlay.Size = UDim2.new(1, 0, 1, 0)
-bgOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-bgOverlay.BackgroundTransparency = 0.75
-bgOverlay.Parent = loginGui
+local passGlowCorner = Instance.new("UICorner")
+passGlowCorner.CornerRadius = UDim.new(0, 26)
+passGlowCorner.Parent = passGlow
 
--- النافذة الرئيسية (شبيهة بالموقع)
-local loginFrame = Instance.new("Frame")
-loginFrame.Size = UDim2.new(0, 420, 0, 480)
-loginFrame.Position = UDim2.new(0.5, -210, 0.5, -240)
-loginFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
-loginFrame.BackgroundTransparency = 0.05
-loginFrame.BorderSizePixel = 0
-loginFrame.ClipsDescendants = true
-loginFrame.Parent = loginGui
+-- الشعار
+local logo = Instance.new("TextLabel")
+logo.Size = UDim2.new(1, 0, 0, 70)
+logo.Position = UDim2.new(0, 0, 0, 25)
+logo.BackgroundTransparency = 1
+logo.Text = "JINoxX"
+logo.TextColor3 = Color3.fromRGB(128, 0, 255)
+logo.TextSize = 42
+logo.Font = Enum.Font.GothamBold
+logo.Parent = passFrame
 
--- حواف دائرية
-local frameCorner = Instance.new("UICorner")
-frameCorner.CornerRadius = UDim.new(0, 24)
-frameCorner.Parent = loginFrame
+local subLogo = Instance.new("TextLabel")
+subLogo.Size = UDim2.new(1, 0, 0, 25)
+subLogo.Position = UDim2.new(0, 0, 0, 85)
+subLogo.BackgroundTransparency = 1
+subLogo.Text = "ENTER PASSWORD"
+subLogo.TextColor3 = Color3.fromRGB(200, 200, 200)
+subLogo.TextSize = 12
+subLogo.Font = Enum.Font.Gotham
+subLogo.Parent = passFrame
 
--- توهج بنفسجي حول النافذة
-local glowBorder = Instance.new("Frame")
-glowBorder.Size = UDim2.new(1, 12, 1, 12)
-glowBorder.Position = UDim2.new(0, -6, 0, -6)
-glowBorder.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-glowBorder.BackgroundTransparency = 0.85
-glowBorder.BorderSizePixel = 0
-glowBorder.ZIndex = 0
-glowBorder.Parent = loginFrame
+-- حقل إدخال الباسورد
+local passBox = Instance.new("TextBox")
+passBox.Size = UDim2.new(0.8, 0, 0, 45)
+passBox.Position = UDim2.new(0.1, 0, 0, 130)
+passBox.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+passBox.BorderSizePixel = 0
+passBox.PlaceholderText = "Enter password..."
+passBox.Text = ""
+passBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+passBox.TextSize = 14
+passBox.Font = Enum.Font.Gotham
+passBox.Parent = passFrame
 
-local glowCorner = Instance.new("UICorner")
-glowCorner.CornerRadius = UDim.new(0, 30)
-glowCorner.Parent = glowBorder
+local passCornerBox = Instance.new("UICorner")
+passCornerBox.CornerRadius = UDim.new(0, 12)
+passCornerBox.Parent = passBox
 
--- الشعار JINOXX
-local logoText = Instance.new("TextLabel")
-logoText.Size = UDim2.new(1, 0, 0, 70)
-logoText.Position = UDim2.new(0, 0, 0, 25)
-logoText.BackgroundTransparency = 1
-logoText.Text = "JINoxX"
-logoText.TextColor3 = Color3.fromRGB(128, 0, 255)
-logoText.TextSize = 48
-logoText.Font = Enum.Font.GothamBold
-logoText.Parent = loginFrame
+-- زر التحقق
+local verifyBtn = Instance.new("TextButton")
+verifyBtn.Size = UDim2.new(0.5, 0, 0, 45)
+verifyBtn.Position = UDim2.new(0.25, 0, 0, 195)
+verifyBtn.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+verifyBtn.Text = "VERIFY"
+verifyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+verifyBtn.TextSize = 14
+verifyBtn.Font = Enum.Font.GothamBold
+verifyBtn.BorderSizePixel = 0
+verifyBtn.Parent = passFrame
 
--- النص الفرعي
-local subText = Instance.new("TextLabel")
-subText.Size = UDim2.new(1, 0, 0, 25)
-subText.Position = UDim2.new(0, 0, 0, 90)
-subText.BackgroundTransparency = 1
-subText.Text = "BLOCK SPIN HUB | KEY SYSTEM"
-subText.TextColor3 = Color3.fromRGB(180, 180, 180)
-subText.TextSize = 12
-subText.Font = Enum.Font.Gotham
-subText.Parent = loginFrame
+local verifyCorner = Instance.new("UICorner")
+verifyCorner.CornerRadius = UDim.new(0, 25)
+verifyCorner.Parent = verifyBtn
 
--- شريط الأمان
-local securityBadge = Instance.new("Frame")
-securityBadge.Size = UDim2.new(0, 120, 0, 25)
-securityBadge.Position = UDim2.new(0.5, -60, 0, 118)
-securityBadge.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-securityBadge.BackgroundTransparency = 0.85
-securityBadge.BorderSizePixel = 0
-securityBadge.Parent = loginFrame
+-- رسالة الخطأ
+local errorLabel = Instance.new("TextLabel")
+errorLabel.Size = UDim2.new(0.8, 0, 0, 30)
+errorLabel.Position = UDim2.new(0.1, 0, 0, 245)
+errorLabel.BackgroundTransparency = 1
+errorLabel.Text = ""
+errorLabel.TextColor3 = Color3.fromRGB(255, 50, 100)
+errorLabel.TextSize = 11
+errorLabel.Font = Enum.Font.Gotham
+errorLabel.Visible = false
+errorLabel.Parent = passFrame
 
-local badgeCorner = Instance.new("UICorner")
-badgeCorner.CornerRadius = UDim.new(1, 0)
-badgeCorner.Parent = securityBadge
-
-local badgeText = Instance.new("TextLabel")
-badgeText.Size = UDim2.new(1, 0, 1, 0)
-badgeText.BackgroundTransparency = 1
-badgeText.Text = "⚡ SECURE SYSTEM ⚡"
-badgeText.TextColor3 = Color3.fromRGB(200, 200, 200)
-badgeText.TextSize = 9
-badgeText.Font = Enum.Font.GothamBold
-badgeText.Parent = securityBadge
-
--- ===== حقل إدخال الكود =====
-local keyLabel = Instance.new("TextLabel")
-keyLabel.Size = UDim2.new(0.8, 0, 0, 20)
-keyLabel.Position = UDim2.new(0.1, 0, 0, 165)
-keyLabel.BackgroundTransparency = 1
-keyLabel.Text = "◈ ENTER YOUR KEY ◈"
-keyLabel.TextColor3 = Color3.fromRGB(128, 0, 255)
-keyLabel.TextSize = 11
-keyLabel.Font = Enum.Font.Gotham
-keyLabel.TextXAlignment = Enum.TextXAlignment.Left
-keyLabel.Parent = loginFrame
-
-local keyBox = Instance.new("TextBox")
-keyBox.Size = UDim2.new(0.8, 0, 0, 50)
-keyBox.Position = UDim2.new(0.1, 0, 0, 185)
-keyBox.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-keyBox.BorderSizePixel = 0
-keyBox.PlaceholderText = "XXXX-XXXX-XXXX"
-keyBox.Text = ""
-keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-keyBox.TextSize = 16
-keyBox.Font = Enum.Font.Gotham
-keyBox.Parent = loginFrame
-
-local keyCorner = Instance.new("UICorner")
-keyCorner.CornerRadius = UDim.new(0, 12)
-keyCorner.Parent = keyBox
-
--- ===== حقل اسم المستخدم =====
-local userLabel = Instance.new("TextLabel")
-userLabel.Size = UDim2.new(0.8, 0, 0, 20)
-userLabel.Position = UDim2.new(0.1, 0, 0, 250)
-userLabel.BackgroundTransparency = 1
-userLabel.Text = "◈ USERNAME ◈"
-userLabel.TextColor3 = Color3.fromRGB(128, 0, 255)
-userLabel.TextSize = 11
-userLabel.Font = Enum.Font.Gotham
-userLabel.TextXAlignment = Enum.TextXAlignment.Left
-userLabel.Parent = loginFrame
-
-local userBox = Instance.new("TextBox")
-userBox.Size = UDim2.new(0.8, 0, 0, 50)
-userBox.Position = UDim2.new(0.1, 0, 0, 270)
-userBox.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-userBox.BorderSizePixel = 0
-userBox.PlaceholderText = player.Name
-userBox.Text = player.Name
-userBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-userBox.TextSize = 16
-userBox.Font = Enum.Font.Gotham
-userBox.Parent = loginFrame
-
-local userCorner = Instance.new("UICorner")
-userCorner.CornerRadius = UDim.new(0, 12)
-userCorner.Parent = userBox
-
--- ===== رسالة الخطأ =====
-local errorMessage = Instance.new("TextLabel")
-errorMessage.Size = UDim2.new(0.8, 0, 0, 30)
-errorMessage.Position = UDim2.new(0.1, 0, 0, 330)
-errorMessage.BackgroundTransparency = 1
-errorMessage.Text = ""
-errorMessage.TextColor3 = Color3.fromRGB(255, 50, 100)
-errorMessage.TextSize = 11
-errorMessage.Font = Enum.Font.Gotham
-errorMessage.Visible = false
-errorMessage.Parent = loginFrame
-
--- ===== زر LOGIN =====
-local loginButton = Instance.new("TextButton")
-loginButton.Size = UDim2.new(0.35, 0, 0, 45)
-loginButton.Position = UDim2.new(0.1, 0, 0, 370)
-loginButton.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-loginButton.Text = "LOGIN"
-loginButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-loginButton.TextSize = 14
-loginButton.Font = Enum.Font.GothamBold
-loginButton.BorderSizePixel = 0
-loginButton.Parent = loginFrame
-
-local loginCorner = Instance.new("UICorner")
-loginCorner.CornerRadius = UDim.new(0, 25)
-loginCorner.Parent = loginButton
-
--- ===== زر COPY LINK =====
-local copyButton = Instance.new("TextButton")
-copyButton.Size = UDim2.new(0.45, 0, 0, 45)
-copyButton.Position = UDim2.new(0.55, 0, 0, 370)
-copyButton.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-copyButton.Text = "COPY LINK"
-copyButton.TextColor3 = Color3.fromRGB(200, 200, 200)
-copyButton.TextSize = 14
-copyButton.Font = Enum.Font.GothamBold
-copyButton.BorderSizePixel = 0
-copyButton.Parent = loginFrame
-
-local copyCorner = Instance.new("UICorner")
-copyCorner.CornerRadius = UDim.new(0, 25)
-copyCorner.Parent = copyButton
-
--- نص إضافي
-local footerText = Instance.new("TextLabel")
-footerText.Size = UDim2.new(1, 0, 0, 30)
-footerText.Position = UDim2.new(0, 0, 0, 435)
-footerText.BackgroundTransparency = 1
-footerText.Text = "JINoxX Security System | 6 Hours Validity"
-footerText.TextColor3 = Color3.fromRGB(80, 80, 100)
-footerText.TextSize = 9
-footerText.Font = Enum.Font.Gotham
-footerText.Parent = loginFrame
-
--- تأثيرات التحويم
-loginButton.MouseEnter:Connect(function()
-    TweenService:Create(loginButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(160, 50, 255)}):Play()
+-- تأثير hover
+verifyBtn.MouseEnter:Connect(function()
+    TweenService:Create(verifyBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(160, 50, 255)}):Play()
 end)
-loginButton.MouseLeave:Connect(function()
-    TweenService:Create(loginButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(128, 0, 255)}):Play()
+verifyBtn.MouseLeave:Connect(function()
+    TweenService:Create(verifyBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(128, 0, 255)}):Play()
 end)
 
-copyButton.MouseEnter:Connect(function()
-    TweenService:Create(copyButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 80)}):Play()
-end)
-copyButton.MouseLeave:Connect(function()
-    TweenService:Create(copyButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 55)}):Play()
-end)
-
--- وظيفة نسخ الرابط
-copyButton.MouseButton1Click:Connect(function()
-    local link = "https://fluffy-invention-lac.vercel.app/"
-    setclipboard(link)
-    copyButton.Text = "✅ COPIED!"
-    task.wait(1.5)
-    copyButton.Text = "COPY LINK"
-end)
-
--- ===== وظيفة التحقق من الكود =====
-local function attemptLogin()
-    local key = keyBox.Text
-    local username = userBox.Text
-    
-    if key == "" or username == "" then
-        errorMessage.Text = "⚠ Please enter both Key and Username"
-        errorMessage.Visible = true
-        return
-    end
-    
-    -- التحقق من الكود عبر نظام Vercel
-    local isValid, msg = validateKeyWithVercel(key, username)
-    
-    if isValid then
-        -- الكود صحيح - إخفاء نافذة الدخول وتشغيل الهكر
-        errorMessage.Visible = false
-        loginGui:Destroy()
-        -- تشغيل سكريبت الهكر الكامل
-        loadMainHub()
+-- دالة التحقق
+local function checkPassword()
+    local input = passBox.Text
+    if input == PASSWORD then
+        passwordGui:Destroy()
+        loadMainHub()  -- تشغيل الهكر
     else
-        errorMessage.Text = "❌ " .. (msg or "Invalid Key! Get your key from the website")
-        errorMessage.Visible = true
+        errorLabel.Text = "❌ Wrong password! Try again."
+        errorLabel.Visible = true
+        passBox.Text = ""
+        task.delay(2, function()
+            errorLabel.Visible = false
+        end)
     end
 end
 
-loginButton.MouseButton1Click:Connect(attemptLogin)
-
--- السماح بالضغط على Enter
-keyBox.FocusLost:Connect(function(enterPressed)
-    if enterPressed then attemptLogin() end
-end)
-userBox.FocusLost:Connect(function(enterPressed)
-    if enterPressed then attemptLogin() end
+verifyBtn.MouseButton1Click:Connect(checkPassword)
+passBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then checkPassword() end
 end)
 
 -- ==============================================================================
 -- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║                          MAIN HUB (THE HACK)                              ║
+-- ║                          MAIN HUB (HORIZONTAL)                            ║
 -- ╚═══════════════════════════════════════════════════════════════════════════╝
 -- ==============================================================================
 
 local function loadMainHub()
-    print("╔═══════════════════════════════════════════════════════════════════════════════╗")
-    print("║                                                                               ║")
-    print("║                    JINOXX DEV - ACCESS GRANTED!                               ║")
-    print("║                      LOADING ALL FEATURES...                                  ║")
-    print("║                                                                               ║")
-    print("╚═══════════════════════════════════════════════════════════════════════════════╝")
+    print("JINOXX DEV - ACCESS GRANTED! Loading Horizontal Hub...")
     
     -- إشعار ترحيبي
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "JINoxX",
-        Text = "Access Granted! Welcome " .. player.Name,
-        Duration = 3
+        Text = "Password Correct! Loading Hub...",
+        Duration = 2
     })
     
     -- ==========================================================================
     -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ║                          VARIABLES                                     ║
+    -- ╍                          VARIABLES                                     ║
     -- ╚═══════════════════════════════════════════════════════════════════════╝
     -- ==========================================================================
     
@@ -388,7 +217,7 @@ local function loadMainHub()
     
     -- ==========================================================================
     -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ║                          HELPER FUNCTIONS                              ║
+    -- ╍                          HELPER FUNCTIONS                              ║
     -- ╚═══════════════════════════════════════════════════════════════════════╝
     -- ==========================================================================
     
@@ -414,7 +243,7 @@ local function loadMainHub()
     
     -- ==========================================================================
     -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ║                              AIMBOT                                    ║
+    -- ╍                              AIMBOT                                    ║
     -- ╚═══════════════════════════════════════════════════════════════════════╝
     -- ==========================================================================
     
@@ -426,7 +255,19 @@ local function loadMainHub()
             if target and target.Character and target.Character:FindFirstChild(aimPart) then
                 local targetPart = target.Character[aimPart]
                 if targetPart and Workspace.CurrentCamera then
-                    Workspace.CurrentCamera.CFrame = CFrame.new(Workspace.CurrentCamera.CFrame.Position, targetPart.Position)
+                    if wallbangEnabled then
+                        Workspace.CurrentCamera.CFrame = CFrame.new(Workspace.CurrentCamera.CFrame.Position, targetPart.Position)
+                    else
+                        local origin = Workspace.CurrentCamera.CFrame.Position
+                        local direction = (targetPart.Position - origin).unit
+                        local raycastParams = RaycastParams.new()
+                        raycastParams.FilterDescendantsInstances = {player.Character}
+                        raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                        local rayResult = Workspace:Raycast(origin, direction * (origin - targetPart.Position).Magnitude, raycastParams)
+                        if not rayResult then
+                            Workspace.CurrentCamera.CFrame = CFrame.new(Workspace.CurrentCamera.CFrame.Position, targetPart.Position)
+                        end
+                    end
                 end
             end
         end)
@@ -438,7 +279,7 @@ local function loadMainHub()
     
     -- ==========================================================================
     -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ║                          ESP (NAME UNDER PLAYER)                       ║
+    -- ╍                          ESP (NAME UNDER PLAYER)                       ║
     -- ╚═══════════════════════════════════════════════════════════════════════╝
     -- ==========================================================================
     
@@ -543,7 +384,7 @@ local function loadMainHub()
     
     -- ==========================================================================
     -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ║                            MOVEMENT                                    ║
+    -- ╍                            MOVEMENT                                    ║
     -- ╚═══════════════════════════════════════════════════════════════════════╝
     -- ==========================================================================
     
@@ -627,7 +468,7 @@ local function loadMainHub()
     
     -- ==========================================================================
     -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ║                            VISUALS                                     ║
+    -- ╍                            VISUALS                                     ║
     -- ╚═══════════════════════════════════════════════════════════════════════╝
     -- ==========================================================================
     
@@ -656,7 +497,7 @@ local function loadMainHub()
     
     -- ==========================================================================
     -- ╔═══════════════════════════════════════════════════════════════════════╗
-    -- ╍                         MAIN GUI (HUB)                                 ║
+    -- ╍                         HORIZONTAL GUI (HUB)                           ║
     -- ╚═══════════════════════════════════════════════════════════════════════╝
     -- ==========================================================================
     
@@ -665,81 +506,88 @@ local function loadMainHub()
     hubGui.Parent = player:WaitForChild("PlayerGui")
     
     local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 380, 0, 400)
-    mainFrame.Position = UDim2.new(0.5, -190, 0.5, -200)
+    mainFrame.Size = UDim2.new(0, 400, 0, 420)
+    mainFrame.Position = UDim2.new(0.5, -200, 0.5, -210)
     mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
     mainFrame.BackgroundTransparency = 0.05
     mainFrame.BorderSizePixel = 0
     mainFrame.ClipsDescendants = true
     mainFrame.Parent = hubGui
     
-    local hubCorner = Instance.new("UICorner")
-    hubCorner.CornerRadius = UDim.new(0, 16)
-    hubCorner.Parent = mainFrame
+    local mainCorner = Instance.new("UICorner")
+    mainCorner.CornerRadius = UDim.new(0, 16)
+    mainCorner.Parent = mainFrame
     
-    local hubGlow = Instance.new("Frame")
-    hubGlow.Size = UDim2.new(1, 8, 1, 8)
-    hubGlow.Position = UDim2.new(0, -4, 0, -4)
-    hubGlow.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-    hubGlow.BackgroundTransparency = 0.85
-    hubGlow.BorderSizePixel = 0
-    hubGlow.ZIndex = 0
-    hubGlow.Parent = mainFrame
+    local glowFrame = Instance.new("Frame")
+    glowFrame.Size = UDim2.new(1, 8, 1, 8)
+    glowFrame.Position = UDim2.new(0, -4, 0, -4)
+    glowFrame.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+    glowFrame.BackgroundTransparency = 0.85
+    glowFrame.BorderSizePixel = 0
+    glowFrame.ZIndex = 0
+    glowFrame.Parent = mainFrame
     
-    local hubGlowCorner = Instance.new("UICorner")
-    hubGlowCorner.CornerRadius = UDim.new(0, 20)
-    hubGlowCorner.Parent = hubGlow
+    local glowCorner = Instance.new("UICorner")
+    glowCorner.CornerRadius = UDim.new(0, 20)
+    glowCorner.Parent = glowFrame
     
-    -- Title
-    local hubTitle = Instance.new("TextLabel")
-    hubTitle.Size = UDim2.new(1, 0, 0, 40)
-    hubTitle.Position = UDim2.new(0, 0, 0, 0)
-    hubTitle.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
-    hubTitle.Text = "JINoxX | BLOCK SPIN HUB"
-    hubTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    hubTitle.TextSize = 16
-    hubTitle.Font = Enum.Font.GothamBold
-    hubTitle.Parent = mainFrame
+    -- Title Bar
+    local titleBar = Instance.new("Frame")
+    titleBar.Size = UDim2.new(1, 0, 0, 40)
+    titleBar.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+    titleBar.BorderSizePixel = 0
+    titleBar.Parent = mainFrame
     
     local titleCorner = Instance.new("UICorner")
     titleCorner.CornerRadius = UDim.new(0, 16)
-    titleCorner.Parent = hubTitle
+    titleCorner.Parent = titleBar
     
-    local closeHubBtn = Instance.new("TextButton")
-    closeHubBtn.Size = UDim2.new(0, 30, 0, 30)
-    closeHubBtn.Position = UDim2.new(1, -38, 0, 5)
-    closeHubBtn.BackgroundColor3 = Color3.fromRGB(80, 0, 160)
-    closeHubBtn.Text = "✕"
-    closeHubBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    closeHubBtn.TextScaled = true
-    closeHubBtn.BorderSizePixel = 0
-    closeHubBtn.Parent = hubTitle
+    local titleText = Instance.new("TextLabel")
+    titleText.Size = UDim2.new(1, -80, 1, 0)
+    titleText.Position = UDim2.new(0, 15, 0, 0)
+    titleText.BackgroundTransparency = 1
+    titleText.Text = "JINOXX DEV | BLOCK SPIN HUB"
+    titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleText.TextScaled = true
+    titleText.Font = Enum.Font.GothamBold
+    titleText.TextXAlignment = Enum.TextXAlignment.Left
+    titleText.Parent = titleBar
+    
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 35, 0, 35)
+    closeBtn.Position = UDim2.new(1, -42, 0, 2.5)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(80, 0, 160)
+    closeBtn.Text = "✕"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.TextScaled = true
+    closeBtn.BorderSizePixel = 0
+    closeBtn.Parent = titleBar
     
     local closeCorner = Instance.new("UICorner")
     closeCorner.CornerRadius = UDim.new(0, 8)
-    closeCorner.Parent = closeHubBtn
+    closeCorner.Parent = closeBtn
     
-    closeHubBtn.MouseButton1Click:Connect(function()
+    closeBtn.MouseButton1Click:Connect(function()
         hubGui:Destroy()
     end)
     
-    -- Tabs
-    local tabs = {"Aim", "ESP", "Farm", "Move", "Vis"}
+    -- Horizontal Tabs
+    local tabs = {"Aimbot", "ESP", "Farm", "Movement", "Visuals"}
     local tabButtons = {}
     local tabFrames = {}
     
     local tabBar = Instance.new("Frame")
-    tabBar.Size = UDim2.new(1, 0, 0, 32)
+    tabBar.Size = UDim2.new(1, 0, 0, 35)
     tabBar.Position = UDim2.new(0, 0, 0, 40)
-    tabBar.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    tabBar.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
     tabBar.BorderSizePixel = 0
     tabBar.Parent = mainFrame
     
     for i, tabName in ipairs(tabs) do
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0, 76, 1, 0)
-        btn.Position = UDim2.new(0, (i-1)*76, 0, 0)
-        btn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+        btn.Size = UDim2.new(0, 80, 1, 0)
+        btn.Position = UDim2.new(0, (i-1)*80, 0, 0)
+        btn.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
         btn.Text = tabName
         btn.TextColor3 = Color3.fromRGB(200, 200, 200)
         btn.TextSize = 12
@@ -752,10 +600,10 @@ local function loadMainHub()
         content.Position = UDim2.new(0, 10, 0, 80)
         content.BackgroundTransparency = 1
         content.BorderSizePixel = 0
-        content.CanvasSize = UDim2.new(0, 0, 0, 350)
+        content.CanvasSize = UDim2.new(0, 0, 0, 400)
         content.ScrollBarThickness = 4
         content.ScrollBarImageColor3 = Color3.fromRGB(128, 0, 255)
-        content.Visible = (tabName == "Aim")
+        content.Visible = (tabName == "Aimbot")
         content.Parent = mainFrame
         
         tabButtons[tabName] = btn
@@ -764,7 +612,7 @@ local function loadMainHub()
         btn.MouseButton1Click:Connect(function()
             for _, v in pairs(tabFrames) do v.Visible = false end
             for _, v in pairs(tabButtons) do 
-                v.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+                v.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
                 v.TextColor3 = Color3.fromRGB(200, 200, 200)
             end
             content.Visible = true
@@ -773,12 +621,13 @@ local function loadMainHub()
         end)
     end
     
-    tabButtons["Aim"].BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+    tabButtons["Aimbot"].BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+    tabButtons["Aimbot"].TextColor3 = Color3.fromRGB(255, 255, 255)
     
     -- Toggle function
     local function addToggle(parent, text, yPos, offFunc, onFunc)
         local toggleFrame = Instance.new("Frame")
-        toggleFrame.Size = UDim2.new(1, -20, 0, 35)
+        toggleFrame.Size = UDim2.new(1, -20, 0, 38)
         toggleFrame.Position = UDim2.new(0, 0, 0, yPos)
         toggleFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
         toggleFrame.BorderSizePixel = 0
@@ -793,14 +642,14 @@ local function loadMainHub()
         label.BackgroundTransparency = 1
         label.Text = text
         label.TextColor3 = Color3.fromRGB(230, 230, 230)
-        label.TextSize = 12
+        label.TextSize = 13
         label.Font = Enum.Font.Gotham
         label.TextXAlignment = Enum.TextXAlignment.Left
         label.Parent = toggleFrame
         
         local toggleBtn = Instance.new("TextButton")
-        toggleBtn.Size = UDim2.new(0, 55, 0, 25)
-        toggleBtn.Position = UDim2.new(1, -65, 0.5, -12.5)
+        toggleBtn.Size = UDim2.new(0, 60, 0, 28)
+        toggleBtn.Position = UDim2.new(1, -70, 0.5, -14)
         toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
         toggleBtn.Text = "OFF"
         toggleBtn.TextSize = 11
@@ -824,50 +673,51 @@ local function loadMainHub()
     end
     
     -- Populate tabs
-    addToggle(tabFrames["Aim"], "Aimbot", 5, stopAimbot, function() aimbotEnabled = true; startAimbot() end)
-    addToggle(tabFrames["Aim"], "Silent Aim", 45, function() silentAimEnabled = false end, function() silentAimEnabled = true end)
-    addToggle(tabFrames["Aim"], "Wallbang", 85, function() wallbangEnabled = false end, function() wallbangEnabled = true end)
+    addToggle(tabFrames["Aimbot"], "Aimbot (Auto Aim)", 5, stopAimbot, function() aimbotEnabled = true; startAimbot() end)
+    addToggle(tabFrames["Aimbot"], "Silent Aim", 48, function() silentAimEnabled = false end, function() silentAimEnabled = true end)
+    addToggle(tabFrames["Aimbot"], "Wallbang", 91, function() wallbangEnabled = false end, function() wallbangEnabled = true end)
     
     addToggle(tabFrames["ESP"], "ESP Players", 5, function() espEnabled = false; updateESP() end, function() espEnabled = true; updateESP() end)
     
-    addToggle(tabFrames["Farm"], "Auto ATM", 5, stopATMFarm, function() autoFarmATM = true; startATMFarm() end)
-    addToggle(tabFrames["Farm"], "Auto Loot", 45, function() autoCollectLoot = false end, function() autoCollectLoot = true end)
+    addToggle(tabFrames["Farm"], "Auto ATM Farm", 5, stopATMFarm, function() autoFarmATM = true; startATMFarm() end)
+    addToggle(tabFrames["Farm"], "Auto Collect Loot", 48, function() autoCollectLoot = false end, function() autoCollectLoot = true end)
     
-    addToggle(tabFrames["Move"], "Fly", 5, disableFly, enableFly)
-    addToggle(tabFrames["Move"], "Noclip", 45, disableNoclip, enableNoclip)
-    addToggle(tabFrames["Move"], "Infinite Jump", 85, disableInfJump, enableInfJump)
+    addToggle(tabFrames["Movement"], "Fly", 5, disableFly, enableFly)
+    addToggle(tabFrames["Movement"], "Noclip", 48, disableNoclip, enableNoclip)
+    addToggle(tabFrames["Movement"], "Infinite Jump", 91, disableInfJump, enableInfJump)
     
-    addToggle(tabFrames["Vis"], "Fullbright", 5, disableFullbright, enableFullbright)
+    addToggle(tabFrames["Visuals"], "Fullbright", 5, disableFullbright, enableFullbright)
     
-    -- Speed slider
+    -- Walk Speed Slider in Movement tab
     local speedFrame = Instance.new("Frame")
-    speedFrame.Size = UDim2.new(1, -20, 0, 45)
-    speedFrame.Position = UDim2.new(0, 0, 0, 140)
+    speedFrame.Size = UDim2.new(1, -20, 0, 50)
+    speedFrame.Position = UDim2.new(0, 0, 0, 150)
     speedFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
     speedFrame.BorderSizePixel = 0
-    speedFrame.Parent = tabFrames["Move"]
+    speedFrame.Parent = tabFrames["Movement"]
     
     local speedCorner = Instance.new("UICorner")
     speedCorner.CornerRadius = UDim.new(0, 8)
     speedCorner.Parent = speedFrame
     
     local speedLabel = Instance.new("TextLabel")
-    speedLabel.Size = UDim2.new(0.6, 0, 1, 0)
+    speedLabel.Size = UDim2.new(0.6, 0, 0.4, 0)
+    speedLabel.Position = UDim2.new(0, 10, 0, 5)
     speedLabel.BackgroundTransparency = 1
     speedLabel.Text = "Walk Speed: 16"
     speedLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
-    speedLabel.TextSize = 12
+    speedLabel.TextSize = 13
     speedLabel.Font = Enum.Font.Gotham
     speedLabel.TextXAlignment = Enum.TextXAlignment.Left
     speedLabel.Parent = speedFrame
     
     local speedBox = Instance.new("TextBox")
-    speedBox.Size = UDim2.new(0.25, 0, 0.6, 0)
-    speedBox.Position = UDim2.new(0.73, 0, 0.2, 0)
+    speedBox.Size = UDim2.new(0.25, 0, 0.5, 0)
+    speedBox.Position = UDim2.new(0.73, 0, 0.25, 0)
     speedBox.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
     speedBox.Text = "16"
     speedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    speedBox.TextSize = 12
+    speedBox.TextSize = 13
     speedBox.Font = Enum.Font.Gotham
     speedBox.BorderSizePixel = 0
     speedBox.Parent = speedFrame
@@ -891,7 +741,7 @@ local function loadMainHub()
     local dragStart = nil
     local startPos = nil
     
-    hubTitle.InputBegan:Connect(function(input)
+    titleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragToggle = true
             dragStart = input.Position
